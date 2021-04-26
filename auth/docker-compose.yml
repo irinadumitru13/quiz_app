@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+    token-generator:
+        build: session_manager
+        environment:
+            - PORT=8000
+        ports:
+            - 8000:8000
+
+    redis:
+        image: "redis"

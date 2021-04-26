@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strings"
+	"os"
 	"time"
 
-	tg "quiz-auth/token_generator"
+	tg "odin-session-manager/token_generator"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,28 +21,48 @@ type Token struct {
 	Token string `json:"token"`
 }
 
+var tokenGenerator *tg.TokenGenerator
+
+func getEnvWithDefault(key, fallback string) string {
+	if e, ok := os.LookupEnv(key); ok {
+		return e
+	}
+	return fallback
+}
+
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.POST("/generate", generateTokenPOST)
-	r.GET("/validate", validateTokenGET)
+
+	authorized := r.Group("/")
+	authorized.Use(tokenGenerator.TokenValidationMiddleware)
+	{
+		authorized.GET("/validate", validateTokenGET)
+		authorized.GET("/claims", tokenClaimsGET)
+	}
 
 	return r
 }
 
-var tokenGenerator *tg.TokenGenerator
-
 func main() {
-	fmt.Println("Bla bla bla")
-
 	var err error
-	tokenGenerator, err = tg.NewTokenGenerator("localhost:6379", time.Hour, "dadadaotelu")
+
+	redisDNS := getEnvWithDefault("REDIS_DNS", "redis")
+	redisPort := getEnvWithDefault("REDIS_PORT", "6379")
+	redisConn := fmt.Sprintf("%s:%s", redisDNS, redisPort)
+
+	ts := getEnvWithDefault("TOKEN_SECRET", "some_powerfull_stuff")
+
+	tokenGenerator, err = tg.NewTokenGenerator(redisConn, time.Hour, ts)
 	if err != nil {
 		panic(err)
 	}
 
 	r := setupRouter()
-	r.Run(":8000")
+
+	port := getEnvWithDefault("PORT", "8000")
+	r.Run(":" + port)
 }
 
 func generateTokenPOST(c *gin.Context) {
@@ -68,30 +88,22 @@ func generateTokenPOST(c *gin.Context) {
 }
 
 func validateTokenGET(c *gin.Context) {
-	token := c.GetHeader("Authorization")
-	if token == "" {
-		c.String(http.StatusForbidden, "no Authorization token provided")
-		return
-	}
+	c.String(http.StatusOK, "ok")
+}
 
-	splitToken := strings.Split(token, " ")
-	token = splitToken[1]
-
-	if err := tokenGenerator.ValidateToken(token); err != nil {
-		c.String(http.StatusUnauthorized, err.Error())
+func tokenClaimsGET(c *gin.Context) {
+	bearer := c.GetHeader("Authorization")
+	token, err := tg.ExtractToken(bearer)
+	if err != nil {
+		c.String(http.StatusBadGateway, err.Error())
+		c.Abort()
 		return
 	}
 
 	ad, err := tokenGenerator.GetAccessDetails(token)
 	if err != nil {
-		c.String(http.StatusNotFound, err.Error())
-		return
+		c.String(http.StatusBadRequest, err.Error())
 	}
 
-	if _, err := tokenGenerator.ValidateSession(ad); err != nil {
-		c.String(http.StatusNotFound, err.Error())
-		return
-	}
-
-	c.String(http.StatusOK, "ok")
+	c.JSON(http.StatusOK, ad)
 }

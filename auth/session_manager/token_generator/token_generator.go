@@ -3,10 +3,13 @@ package token_generator
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v7"
 	"github.com/twinj/uuid"
 )
@@ -186,4 +189,44 @@ func (g *TokenGenerator) ValidateSession(ad *AccessDetails) (*AccessDetails, err
 		UserId:   re.UserId,
 		UserName: re.UserName,
 	}, nil
+}
+
+func ExtractToken(bearer string) (string, error) {
+	split := strings.Split(bearer, " ")
+	if len(split) != 2 {
+		return "", fmt.Errorf("no token provided")
+	}
+
+	return split[1], nil
+}
+
+func (g *TokenGenerator) TokenValidationMiddleware(c *gin.Context) {
+	bearer := c.GetHeader("Authorization")
+	token, err := ExtractToken(bearer)
+	if err != nil {
+		c.String(http.StatusUnauthorized, err.Error())
+		c.Abort()
+		return
+	}
+
+	if err := g.ValidateToken(token); err != nil {
+		c.String(http.StatusUnauthorized, err.Error())
+		c.Abort()
+		return
+	}
+
+	ad, err := g.GetAccessDetails(token)
+	if err != nil {
+		c.String(http.StatusNotFound, err.Error())
+		c.Abort()
+		return
+	}
+
+	if _, err := g.ValidateSession(ad); err != nil {
+		c.String(http.StatusUnauthorized, err.Error())
+		c.Abort()
+		return
+	}
+
+	c.Next()
 }
