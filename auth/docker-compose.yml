@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-    token-generator:
+    session-manager:
         build: session_manager
         environment:
             - PORT=8000
