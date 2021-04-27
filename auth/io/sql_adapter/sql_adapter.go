@@ -31,7 +31,7 @@ func (a *Adapter) UpdateUsername(username, password, newUsername string) (int64,
 		return 0, err
 	}
 
-	query, err := a.dbClient.Prepare(`UPDATE users SET username=$1 WHERE id=$2`)
+	query, err := a.dbClient.Prepare(`UPDATE users SET name=$1 WHERE id=$2`)
 	if err != nil {
 		return 0, err
 	}
@@ -81,6 +81,9 @@ func (a *Adapter) CheckCredentials(username, password string) (*UserInfo, error)
 	row := query.QueryRow(username)
 	err = row.Scan(&userInfo.ID, &encryptedPassword, &userInfo.Name)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("invalid username or password")
+		}
 		return nil, err
 	}
 
