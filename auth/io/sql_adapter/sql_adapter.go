@@ -104,7 +104,6 @@ func (a *Adapter) CheckUsername(username string) (string, error) {
 	row := query.QueryRow(username)
 	err = row.Scan(&username)
 	if err != nil {
-		log.Println(err)
 		return username, nil
 	}
 

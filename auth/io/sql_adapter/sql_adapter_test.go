@@ -321,3 +321,83 @@ func TestUpdatePassword(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckUsername(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		username      string
+		sqlError      error
+		wantUsername  string
+		wantErrString string
+	}{
+		{
+			name:          "Test existing username",
+			username:      "nothing_special",
+			wantUsername:  "",
+			wantErrString: "username already exists",
+		},
+		{
+			name:         "Test new username",
+			username:     "nothing_special",
+			wantUsername: "nothing_special",
+		},
+		{
+			name:          "Test SQL no rows returned error",
+			username:      "nothing_special",
+			sqlError:      fmt.Errorf("no rows returned"),
+			wantUsername:  "nothing_special",
+			wantErrString: "no rows returned",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			if err != nil {
+				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+			}
+			defer db.Close()
+
+			adapter := NewAdapter(db)
+
+			if test.sqlError != nil {
+				prep := mock.ExpectPrepare("SELECT name FROM users WHERE name=?")
+				prep.ExpectQuery().
+					WithArgs(test.username).
+					WillReturnError(test.sqlError)
+			} else {
+				row := sqlmock.NewRows([]string{"name"})
+
+				if test.wantErrString != "" {
+					row = row.AddRow(test.username)
+				}
+
+				prep := mock.ExpectPrepare("SELECT name FROM users WHERE name=?")
+				prep.ExpectQuery().
+					WithArgs(test.username).
+					WillReturnRows(row)
+			}
+
+			u, err := adapter.CheckUsername(test.username)
+
+			if test.wantErrString == "" && err != nil {
+				t.Fatalf("unexpected error: %s", err)
+			}
+
+			if err != nil && !strings.Contains(err.Error(), test.wantErrString) {
+				t.Fatalf("got error %q; expected to contain %q", err, test.wantErrString)
+			}
+
+			if u != test.wantUsername {
+				t.Fatalf("unexpected username: want %s got %s", test.wantUsername, u)
+			}
+
+			// we make sure that all expectations were met
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("there were unfulfilled expectations: %s", err)
+			}
+		})
+	}
+}
