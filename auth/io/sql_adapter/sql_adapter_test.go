@@ -76,7 +76,8 @@ func TestCheckCredentials(t *testing.T) {
 			adapter := NewAdapter(db)
 
 			if test.row_result.err != nil {
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnError(test.row_result.err)
 			} else {
@@ -91,7 +92,8 @@ func TestCheckCredentials(t *testing.T) {
 					row = row.AddRow(test.row_result.id, encrypted, test.row_result.username)
 				}
 
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnRows(row)
 			}
@@ -169,7 +171,9 @@ func TestUpdateUsername(t *testing.T) {
 			adapter := NewAdapter(db)
 
 			if test.initial_row_result.err != nil {
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnError(test.initial_row_result.err)
 			} else {
@@ -184,11 +188,14 @@ func TestUpdateUsername(t *testing.T) {
 					row = row.AddRow(test.initial_row_result.id, encrypted, test.initial_row_result.username)
 				}
 
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnRows(row)
+
 				if !test.loginFailed {
-					mock.ExpectExec("UPDATE users").
+					prep := mock.ExpectPrepare("UPDATE users")
+					prep.ExpectExec().
 						WillReturnResult(sqlmock.NewResult(1, test.wantRows))
 				}
 			}
@@ -266,7 +273,8 @@ func TestUpdatePassword(t *testing.T) {
 			adapter := NewAdapter(db)
 
 			if test.initial_row_result.err != nil {
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnError(test.initial_row_result.err)
 			} else {
@@ -281,11 +289,13 @@ func TestUpdatePassword(t *testing.T) {
 					row = row.AddRow(test.initial_row_result.id, encrypted, test.initial_row_result.username)
 				}
 
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnRows(row)
 				if !test.loginFailed {
-					mock.ExpectExec("UPDATE users").
+					prep := mock.ExpectPrepare("UPDATE users")
+					prep.ExpectExec().
 						WillReturnResult(sqlmock.NewResult(1, test.wantRows))
 				}
 			}
