@@ -76,7 +76,8 @@ func TestCheckCredentials(t *testing.T) {
 			adapter := NewAdapter(db)
 
 			if test.row_result.err != nil {
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnError(test.row_result.err)
 			} else {
@@ -91,7 +92,8 @@ func TestCheckCredentials(t *testing.T) {
 					row = row.AddRow(test.row_result.id, encrypted, test.row_result.username)
 				}
 
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnRows(row)
 			}
@@ -169,7 +171,9 @@ func TestUpdateUsername(t *testing.T) {
 			adapter := NewAdapter(db)
 
 			if test.initial_row_result.err != nil {
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnError(test.initial_row_result.err)
 			} else {
@@ -184,11 +188,14 @@ func TestUpdateUsername(t *testing.T) {
 					row = row.AddRow(test.initial_row_result.id, encrypted, test.initial_row_result.username)
 				}
 
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnRows(row)
+
 				if !test.loginFailed {
-					mock.ExpectExec("UPDATE users").
+					prep := mock.ExpectPrepare("UPDATE users")
+					prep.ExpectExec().
 						WillReturnResult(sqlmock.NewResult(1, test.wantRows))
 				}
 			}
@@ -266,7 +273,8 @@ func TestUpdatePassword(t *testing.T) {
 			adapter := NewAdapter(db)
 
 			if test.initial_row_result.err != nil {
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnError(test.initial_row_result.err)
 			} else {
@@ -281,11 +289,13 @@ func TestUpdatePassword(t *testing.T) {
 					row = row.AddRow(test.initial_row_result.id, encrypted, test.initial_row_result.username)
 				}
 
-				mock.ExpectQuery("SELECT id, password, name FROM users WHERE name = ?").
+				prep := mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+				prep.ExpectQuery().
 					WithArgs(test.username).
 					WillReturnRows(row)
 				if !test.loginFailed {
-					mock.ExpectExec("UPDATE users").
+					prep := mock.ExpectPrepare("UPDATE users")
+					prep.ExpectExec().
 						WillReturnResult(sqlmock.NewResult(1, test.wantRows))
 				}
 			}
@@ -302,6 +312,193 @@ func TestUpdatePassword(t *testing.T) {
 
 			if rows != test.wantRows {
 				t.Fatalf("unexpected number of rows modifier; got %q want %q", rows, test.wantRows)
+			}
+
+			// we make sure that all expectations were met
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("there were unfulfilled expectations: %s", err)
+			}
+		})
+	}
+}
+
+func TestCheckUsername(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		username      string
+		sqlError      error
+		wantUsername  string
+		wantErrString string
+	}{
+		{
+			name:          "Test existing username",
+			username:      "nothing_special",
+			wantUsername:  "",
+			wantErrString: "username already exists",
+		},
+		{
+			name:         "Test new username",
+			username:     "nothing_special",
+			wantUsername: "nothing_special",
+		},
+		{
+			name:          "Test SQL no rows returned error",
+			username:      "nothing_special",
+			sqlError:      fmt.Errorf("no rows returned"),
+			wantUsername:  "nothing_special",
+			wantErrString: "no rows returned",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			if err != nil {
+				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+			}
+			defer db.Close()
+
+			adapter := NewAdapter(db)
+
+			if test.sqlError != nil {
+				prep := mock.ExpectPrepare("SELECT name FROM users WHERE name=?")
+				prep.ExpectQuery().
+					WithArgs(test.username).
+					WillReturnError(test.sqlError)
+			} else {
+				row := sqlmock.NewRows([]string{"name"})
+
+				if test.wantErrString != "" {
+					row = row.AddRow(test.username)
+				}
+
+				prep := mock.ExpectPrepare("SELECT name FROM users WHERE name=?")
+				prep.ExpectQuery().
+					WithArgs(test.username).
+					WillReturnRows(row)
+			}
+
+			u, err := adapter.CheckUsername(test.username)
+
+			if test.wantErrString == "" && err != nil {
+				t.Fatalf("unexpected error: %s", err)
+			}
+
+			if err != nil && !strings.Contains(err.Error(), test.wantErrString) {
+				t.Fatalf("got error %q; expected to contain %q", err, test.wantErrString)
+			}
+
+			if u != test.wantUsername {
+				t.Fatalf("unexpected username: want %s got %s", test.wantUsername, u)
+			}
+
+			// we make sure that all expectations were met
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("there were unfulfilled expectations: %s", err)
+			}
+		})
+	}
+}
+
+func TestCreateUser(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name           string
+		row_result     *entry
+		username       string
+		password       string
+		sqlError       error
+		wantUserInfo   *UserInfo
+		usernameExists bool
+		wantErrString  string
+	}{
+		{
+			name: "Test valid input",
+			row_result: &entry{
+				id:       1,
+				password: "nothing_special",
+				username: "nothing_special",
+			},
+			username: "nothing_special",
+			password: "nothing_special",
+			wantUserInfo: &UserInfo{
+				ID:   1,
+				Name: "nothing_special",
+			},
+			usernameExists: false,
+		},
+		{
+			name:           "Test already existing username",
+			username:       "nothing_special",
+			password:       "nothing_special",
+			usernameExists: true,
+			wantErrString:  "username already exists",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			if err != nil {
+				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+			}
+			defer db.Close()
+
+			adapter := NewAdapter(db)
+
+			if test.sqlError != nil {
+				prep := mock.ExpectPrepare("SELECT name FROM users WHERE name=?")
+				prep.ExpectQuery().
+					WithArgs(test.username).
+					WillReturnError(test.sqlError)
+			} else {
+				row := sqlmock.NewRows([]string{"name"})
+
+				if test.wantErrString != "" {
+					row = row.AddRow(test.username)
+				}
+
+				prep := mock.ExpectPrepare("SELECT name FROM users WHERE name=?")
+				prep.ExpectQuery().
+					WithArgs(test.username).
+					WillReturnRows(row)
+
+				if !test.usernameExists {
+					prep := mock.ExpectPrepare("INSERT INTO users")
+					prep.ExpectExec().
+						WithArgs(test.username, sqlmock.AnyArg()).
+						WillReturnResult(sqlmock.NewResult(1, 1))
+
+					enc, err := passlib.Hash(test.row_result.password)
+					if err != nil {
+						t.Fatalf("couldn't hash password: %s", err)
+					}
+
+					row := sqlmock.NewRows([]string{"id", "password", "name"}).
+						AddRow(test.row_result.id, enc, test.row_result.username)
+
+					prep = mock.ExpectPrepare("SELECT id, password, name FROM users WHERE name=?")
+					prep.ExpectQuery().
+						WithArgs(test.username).
+						WillReturnRows(row)
+				}
+			}
+
+			ui, err := adapter.CreateUser(test.username, test.password)
+
+			if test.wantErrString == "" && err != nil {
+				t.Fatalf("unexpected error: %s", err)
+			}
+
+			if err != nil && !strings.Contains(err.Error(), test.wantErrString) {
+				t.Fatalf("got error %q; expected to contain %q", err, test.wantErrString)
+			}
+
+			if diff := cmp.Diff(ui, test.wantUserInfo); diff != "" {
+				t.Fatalf("unexpected result diff: %v", diff)
 			}
 
 			// we make sure that all expectations were met

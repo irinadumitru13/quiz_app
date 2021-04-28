@@ -3,7 +3,6 @@ package sql_adapter
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -104,7 +103,6 @@ func (a *Adapter) CheckUsername(username string) (string, error) {
 	row := query.QueryRow(username)
 	err = row.Scan(&username)
 	if err != nil {
-		log.Println(err)
 		return username, nil
 	}
 
@@ -127,7 +125,6 @@ func (a *Adapter) CreateUser(username, password string) (*UserInfo, error) {
 		return nil, err
 	}
 
-	log.Println(username, encryptedPassword)
 	_, err = query.Exec(username, encryptedPassword)
 	if err != nil {
 		return nil, err
