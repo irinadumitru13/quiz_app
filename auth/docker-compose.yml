@@ -7,6 +7,31 @@ services:
             - PORT=8000
         ports:
             - 8000:8000
+        depends_on: 
+            - redis
 
     redis:
         image: "redis"
+
+    io-adapter:
+        build: io
+        environment:
+            - PORT=8001
+            - SQL_USER=admin
+            - SQL_PASSWORD=admin
+            - SQL_DATABASE=quiz-app
+            - SQL_HOST=postgres
+        ports:
+            - 8001:8001
+        depends_on: 
+            - postgres
+
+    postgres:
+        image: postgres:alpine
+        environment:
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=admin
+            - POSTGRES_DB=quiz-app
+        volumes:
+            - ./io/db_init/users_init.sql:/docker-entrypoint-initdb.d/1-schema.sql
+
