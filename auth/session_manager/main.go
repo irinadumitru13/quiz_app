@@ -12,13 +12,9 @@ import (
 )
 
 type UserCredentials struct {
-	UserID   uint64 `json:"user_id"`
+	UserID   uint64 `json:"id"`
 	UserName string `json:"username"`
 	Password string `json:"password"`
-}
-
-type Token struct {
-	Token string `json:"token"`
 }
 
 var tokenGenerator *tg.TokenGenerator
@@ -84,7 +80,7 @@ func generateTokenPOST(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, Token{Token: td.Token})
+	c.String(http.StatusCreated, td.Token)
 }
 
 func validateTokenGET(c *gin.Context) {
