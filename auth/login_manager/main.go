@@ -14,7 +14,7 @@ import (
 
 type UserCredentials struct {
 	UserID   uint64 `json:"id"`
-	UserName string `json:"username" validate:"min=5,max=50,regexp=^[a-zA-Z0-9]*$`
+	UserName string `json:"username" validate:"min=5,max=50,regexp=^[a-zA-Z0-9]*$"`
 	Password string `json:"password" validate:"min=8,max=50"`
 }
 
@@ -32,6 +32,7 @@ func setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.POST("/auth/login", localLoginPOST)
+	r.POST("/auth/register", localRegisterPOST)
 
 	return r
 }
@@ -58,7 +59,8 @@ func localLoginPOST(c *gin.Context) {
 		return
 	}
 
-	if err := validator.Validate(uc); err != nil {
+	log.Println(uc)
+	if errs := validator.Validate(uc); errs != nil {
 		c.JSON(http.StatusBadRequest, "failed to validate user credentials")
 		c.Abort()
 		return
@@ -120,5 +122,54 @@ func localLoginPOST(c *gin.Context) {
 		return
 	}
 
-	c.String(http.StatusOK, string(body))
+	c.String(resp.StatusCode, string(body))
+}
+
+func localRegisterPOST(c *gin.Context) {
+	var uc UserCredentials
+
+	if err := c.ShouldBindJSON(&uc); err != nil {
+		c.String(http.StatusBadRequest, "malformed JSON")
+		c.Abort()
+		return
+	}
+
+	if err := validator.Validate(uc); err != nil {
+		c.JSON(http.StatusBadRequest, "failed to validate user credentials")
+		c.Abort()
+		return
+	}
+
+	// Send register request
+	json_data, err := json.Marshal(uc)
+	if err != nil {
+		c.String(http.StatusBadRequest, "malformed JSON")
+		c.Abort()
+		return
+	}
+
+	resp, err := http.Post(ioAdapterURL+"/register", "application/json", bytes.NewBuffer(json_data))
+	if err != nil {
+		c.String(http.StatusInternalServerError, "failed to register")
+		c.Abort()
+		return
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "failed to decode body")
+		c.Abort()
+		return
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		c.String(resp.StatusCode, string(body))
+		c.Abort()
+		return
+	}
+
+	// Read response user info
+	json.NewDecoder(bytes.NewBuffer(body)).Decode(&uc)
+
+	c.JSON(resp.StatusCode, uc)
 }
