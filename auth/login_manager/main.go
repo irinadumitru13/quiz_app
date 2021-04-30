@@ -7,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/validator.v2"
 )
@@ -30,6 +32,14 @@ func getEnvWithDefault(key, fallback string) string {
 
 func setupRouter() *gin.Engine {
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"POST"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	r.POST("/auth/login", localLoginPOST)
 	r.POST("/auth/register", localRegisterPOST)
@@ -61,7 +71,7 @@ func localLoginPOST(c *gin.Context) {
 
 	log.Println(uc)
 	if errs := validator.Validate(uc); errs != nil {
-		c.JSON(http.StatusBadRequest, "failed to validate user credentials")
+		c.String(http.StatusBadRequest, "failed to validate user credentials")
 		c.Abort()
 		return
 	}
@@ -135,7 +145,7 @@ func localRegisterPOST(c *gin.Context) {
 	}
 
 	if err := validator.Validate(uc); err != nil {
-		c.JSON(http.StatusBadRequest, "failed to validate user credentials")
+		c.String(http.StatusBadRequest, "failed to validate user credentials")
 		c.Abort()
 		return
 	}

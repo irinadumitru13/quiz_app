@@ -5,8 +5,6 @@ services:
         build: session_manager
         environment:
             - PORT=8000
-        ports:
-            - 8000:8000
         depends_on: 
             - redis
 
@@ -21,8 +19,6 @@ services:
             - SQL_PASSWORD=admin
             - SQL_DATABASE=quiz-app
             - SQL_HOST=postgres
-        ports:
-            - 8001:8001
         depends_on: 
             - postgres
 
@@ -35,3 +31,11 @@ services:
         volumes:
             - ./io/db_init/users_init.sql:/docker-entrypoint-initdb.d/1-schema.sql
 
+    login-manager:
+        build: login_manager
+        environment:
+            - PORT=8002
+            - SESSION_MANAGER=http://session-manager:8000
+            - IO_ADAPTER=http://io-adapter:8001
+        ports:
+            - 8002:8002
