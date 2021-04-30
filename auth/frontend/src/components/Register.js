@@ -64,6 +64,7 @@ export default function Register() {
 		try {
 			const token = await register(username, password)
 			setIsLoading(false)
+			alert.show("Account created successfully!")
 			history.push("/")
 		} catch (e) {
 			setIsLoading(false)
