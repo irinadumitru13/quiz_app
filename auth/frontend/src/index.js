@@ -6,21 +6,21 @@ import AlertTemplate from 'react-alert-template-basic';
 import App from './components/App';
 
 const options = {
-	position: positions.TOP_RIGHT,
-	timeout: 5000,
-	offset: '30px',
-	transition: transitions.SCALE
+  position: positions.TOP_RIGHT,
+  timeout: 5000,
+  offset: '30px',
+  transition: transitions.SCALE
 }
 
 const Root = () => {
-	return (
-		<AlertProvider template={AlertTemplate} {...options}>
-			<App />
-		</AlertProvider>
-	)
+  return (
+    <AlertProvider template={AlertTemplate} {...options}>
+      <App />
+    </AlertProvider>
+  )
 }
 
 ReactDOM.render(
-	<Root />,
-	document.getElementById('root')
+  <Root />,
+  document.getElementById('root')
 );
