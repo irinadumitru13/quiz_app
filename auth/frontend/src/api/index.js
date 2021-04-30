@@ -1,8 +1,8 @@
-const BASE_API_URL = 'http://localhost:8002'
+const LOGIN_API = "http://localhost:8002"
 
 export async function login(username, password) {
 	try {
-		const response = await fetch(`${BASE_API_URL}/auth/login`, {
+		const response = await fetch(`${LOGIN_API}/auth/login`, {
 			method: 'POST',
 			headers: {
 				"Content-Type": "application/json",
@@ -27,7 +27,7 @@ export async function login(username, password) {
 
 export async function register(username, password) {
 	try {
-		const response = await fetch(`${BASE_API_URL}/auth/register`, {
+		const response = await fetch(`${LOGIN_API}/auth/register`, {
 			method: 'POST',
 			headers: {
 				"Content-Type": "application/json",
