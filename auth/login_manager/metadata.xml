@@ -1,0 +1,17 @@
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" validUntil="2021-05-05T12:05:35.012Z" entityID="http://localhost:8000/saml/metadata">
+  <SPSSODescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" validUntil="2021-05-05T12:05:35.012369Z" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" AuthnRequestsSigned="false" WantAssertionsSigned="true">
+    <KeyDescriptor use="encryption">
+      <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <X509Data>
+          <X509Certificate>MIICvDCCAaQCCQDU4CKJii1gyTANBgkqhkiG9w0BAQsFADAgMR4wHAYDVQQDDBVteXNlcnZpY2UuZXhhbXBsZS5jb20wHhcNMjEwNTAzMTE1MzU3WhcNMjIwNTAzMTE1MzU3WjAgMR4wHAYDVQQDDBVteXNlcnZpY2UuZXhhbXBsZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDIkehTViYiwwc8IF/3AmWnjxQ5YuRny+fyGPt/EGDpd5raT1pctfPKMtxga4tSFOM2fbxU2m5nUh17aOK8/Zt9tjl63uo/QK7pnw/ip2JxBOWA5SrBwPTnVFsLSe44TcLunqNpZoHCbskrhvNXZK1ka+XK2SJFGaP72jd+37SPF78lGcuw1bXd8En1Bn+LcLUzY0n0hzaxOT2fFbRBg189joWPn3tvAHWep9p0rfkKaR2yo4aTryFRIhmzz1JWc9DhQuod9LxpEeCr8jMxn2ZTFqt7kKNAYm80F21VfqGLG1FmIIL7L+r0a3O0a1xk1O3U9kyWMWVdv4CKsa1hkTH9AgMBAAEwDQYJKoZIhvcNAQELBQADggEBAGkfRUctJcK4LRp+j9h0X2Gm7TI6kj9BSlThE30vBYFWoP3ggaNHrEfb5ZBTbyH4PuQzyKcmteOWA6/MaPOAmWHcJ6+D6bPgqMTFheyv49pFCeXeMJG38bqefQZgnVPTAyIPqdxX8/Rk8CWlEz21xVxQXuxmmvDsw4uTnvFUb1O2Cl02NpOc6WB/pdlNTey1z5ajT1Pm8zgyzJZpqLoqxbaXwK5Ruz2Y/sKS1vQSxtRXC4xNfeytjfji39OvnJ6n2Ryi3RPJCE7fl7bGWiquc2Q7yUK5FROJxFM/B7uA151JXWFiQPvkg35BYIe4+NkWcwLS+PlGGzdgJIIv8AeOMo8=</X509Certificate>
+        </X509Data>
+      </KeyInfo>
+      <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes128-cbc"></EncryptionMethod>
+      <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes192-cbc"></EncryptionMethod>
+      <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes256-cbc"></EncryptionMethod>
+      <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p"></EncryptionMethod>
+    </KeyDescriptor>
+    <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:8000/saml/slo" ResponseLocation="http://localhost:8000/saml/slo"></SingleLogoutService>
+    <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:8000/saml/acs" index="1"></AssertionConsumerService>
+  </SPSSODescriptor>
+</EntityDescriptor>

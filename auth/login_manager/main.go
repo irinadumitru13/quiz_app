@@ -9,6 +9,8 @@ import (
 	"os"
 	"time"
 
+	"odin-login-manager/saml"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/validator.v2"
@@ -50,14 +52,24 @@ func setupRouter() *gin.Engine {
 func main() {
 	sessionManagerURL = getEnvWithDefault("SESSION_MANAGER", "session-manager")
 	ioAdapterURL = getEnvWithDefault("IO_ADAPTER", "io-adapter")
+	port := getEnvWithDefault("PORT", "8000")
+
+	samlPort := getEnvWithDefault("SAML_PORT", "8003")
+	samlIDP := getEnvWithDefault("SAML_IDP", "https://samltest.id/saml/idp")
+	samlRoot := getEnvWithDefault("SAML_ROOT", "http://localhost:"+samlPort)
+	samlName := getEnvWithDefault("SAML_NAME", "myservice")
 
 	log.Printf("Using session-manager at %q", sessionManagerURL)
 	log.Printf("Using io-adapter at %q", ioAdapterURL)
 
 	r := setupRouter()
+	samlSP, err := saml.NewServiceProvider(samlName, samlIDP, samlRoot)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	port := getEnvWithDefault("PORT", "8000")
-	r.Run(":" + port)
+	go r.Run(":" + port)
+	samlSP.Run(":" + samlPort)
 }
 
 func localLoginPOST(c *gin.Context) {
