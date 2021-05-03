@@ -64,6 +64,6 @@ func NewServiceProvider(name, idp, root string) (*ServiceProvider, error) {
 func (s *ServiceProvider) Run(port string) {
 	app := http.HandlerFunc(hello)
 	http.Handle("/saml/", s.middleware)
-	http.Handle("/generate", s.middleware.RequireAccount(app))
+	http.Handle("/", s.middleware.RequireAccount(app))
 	http.ListenAndServe(port, nil)
 }
