@@ -81,7 +81,6 @@ func localLoginPOST(c *gin.Context) {
 		return
 	}
 
-	log.Println(uc)
 	if errs := validator.Validate(uc); errs != nil {
 		c.String(http.StatusBadRequest, "failed to validate user credentials")
 		c.Abort()
