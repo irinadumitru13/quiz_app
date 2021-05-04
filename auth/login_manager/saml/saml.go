@@ -17,6 +17,7 @@ type ServiceProvider struct {
 	middleware *samlsp.Middleware
 }
 
+// TODO(seritandrei): add token and session generation
 func hello(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie("token")
 	fmt.Fprintf(w, "%s", cookie.Value)
