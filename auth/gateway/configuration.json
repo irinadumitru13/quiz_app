@@ -1,0 +1,84 @@
+{
+	"version": 2,
+	"timeout": "3000ms",
+	"cache_ttl": "300s",
+	"output_encoding": "json",
+	"name": "Gateway",
+	"endpoints": [
+		{
+			"endpoint": "/ip",
+			"method": "GET",
+			"output_encoding": "no-op",
+			"extra_config": {},
+			"headers_to_pass": [
+				"X-Friend-User"
+			],
+			"backend": [
+				{
+					"url_pattern": "/json",
+					"encoding": "no-op",
+					"sd": "dns",
+					"method": "GET",
+					"extra_config": {},
+					"host": [
+						"https://ipinfo.io"
+					]
+				}
+			]
+		},
+		{
+			"endpoint": "/auth/login",
+			"method": "POST",
+			"output_encoding": "no-op",
+			"extra_config": {},
+			"backend": [
+				{
+					"url_pattern": "/auth/login",
+					"encoding": "no-op",
+					"sd": "static",
+					"method": "POST",
+					"extra_config": {},
+					"host": [
+						"http://login-manager:8002"
+					],
+					"disable_host_sanitize": true
+				}
+			]
+		},
+		{
+			"endpoint": "/auth/register",
+			"method": "POST",
+			"output_encoding": "no-op",
+			"extra_config": {},
+			"backend": [
+				{
+					"url_pattern": "/auth/register",
+					"encoding": "no-op",
+					"sd": "static",
+					"method": "POST",
+					"extra_config": {},
+					"host": [
+						"http://login-manager:8002"
+					],
+					"disable_host_sanitize": true
+				}
+			]
+		}
+	],
+	"extra_config": {
+		"github_com/devopsfaith/krakend/router/gin": {
+			"auto_options": true
+		},
+		"github_com/devopsfaith/krakend-cors": {
+			"allow_origins": [
+				"*"
+			],
+			"allow_methods": [
+				"*"
+			],
+			"allow_headers": [
+				"*"
+			]
+		}
+	}
+}
