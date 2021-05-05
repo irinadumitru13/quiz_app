@@ -44,9 +44,19 @@ services:
         volumes:
             - ./login_manager/myservice.cert:/dist/myservice.cert
             - ./login_manager/myservice.key:/dist/myservice.key
+
+    gateway:
+        build: gateway
+        environment:
+            - PORT=8004
+            - CONFIG=configuration.json
+            - SESSION_VALIDATION_URL=http://session-manager:8000/validate
+            - DEBUG=true
+        volumes:
+            - ./gateway/configuration.json:/dist/configuration.json
         ports:
-            - 8002:8002
-            - 8003:8003
+            - 8004:8004
+
 
     frontend:
         build: frontend
