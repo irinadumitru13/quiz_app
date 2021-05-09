@@ -1,0 +1,24 @@
+{
+  "name": "ioquizmicroservice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node start.js",
+    "start-dev-docker": "nodemon start.js"
+  },
+  "author": "Dumitru Irina-Alexandra",
+  "license": "ISC",
+  "dependencies": {
+    "docker-secret": "^1.1.2",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "helmet": "^4.6.0",
+    "http-errors": "^1.8.0",
+    "log-timestamp": "^0.3.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.6",
+    "pg": "^8.6.0"
+  }
+}
