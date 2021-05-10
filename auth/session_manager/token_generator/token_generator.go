@@ -28,9 +28,9 @@ type TokenDetails struct {
 // AccessDetails represents the information about the user provided
 // through the token.
 type AccessDetails struct {
-	Uuid     string
-	UserId   uint64
-	UserName string
+	Uuid     string `json:"uuid"`
+	UserId   uint64 `json:"uid"`
+	UserName string `json:"username"`
 }
 
 type TokenGenerator struct {

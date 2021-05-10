@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -9,19 +11,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AuthorizationMiddleware struct {
-	sessionManagerURL string
-	client            *http.Client
+type IdentificationMiddleware struct {
+	getClaimsURL string
+	client       *http.Client
 }
 
-func NewAuthorizationMiddleware(sessionManagerURL string) *AuthorizationMiddleware {
+// AccessDetails represents the information about the user provided
+// through the token.
+// Must be the same as in token_generator.go!
+type AccessDetails struct {
+	Uuid     string `json:"uuid"`
+	UserId   uint64 `json:"uid"`
+	UserName string `json:"username"`
+}
+
+func NewIdentificationMiddleware(getClaimsURL string) *IdentificationMiddleware {
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
-	return &AuthorizationMiddleware{sessionManagerURL, client}
+	return &IdentificationMiddleware{getClaimsURL, client}
 }
 
-func (m *AuthorizationMiddleware) Middleware() gin.HandlerFunc {
+func (m *IdentificationMiddleware) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		URI := c.Request.RequestURI[1:]
 		split := strings.Split(URI, "/")
@@ -32,7 +43,7 @@ func (m *AuthorizationMiddleware) Middleware() gin.HandlerFunc {
 
 		bearer := c.GetHeader("Authorization")
 
-		req, err := http.NewRequest("GET", m.sessionManagerURL, nil)
+		req, err := http.NewRequest("GET", m.getClaimsURL, nil)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "internal error")
 			c.Abort()
@@ -60,6 +71,14 @@ func (m *AuthorizationMiddleware) Middleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
+		var ad AccessDetails
+		json.NewDecoder(bytes.NewBuffer(body)).Decode(&ad)
+
+		// Add identification headers.
+		// TODO(seritandrei): change uuid to userid
+		c.Header("User-ID", ad.Uuid)
+		c.Header("User-Name", ad.UserName)
 
 		c.Next()
 	}

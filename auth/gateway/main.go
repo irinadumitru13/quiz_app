@@ -29,6 +29,7 @@ func main() {
 	debugString := getEnvWithDefault("DEBUG", "false")
 	configFile := getEnvWithDefault("CONFIG", "/etc/krakend/configuration.json")
 	sessionValidationURL := getEnvWithDefault("SESSION_VALIDATION_URL", "http://session-manager:8000/validate")
+	userClaimsURL := getEnvWithDefault("USER_CLAIMS_URL", "http://session-manager:8000/claims")
 
 	port, err := strconv.Atoi(portString)
 	if err != nil {
@@ -54,10 +55,13 @@ func main() {
 		log.Fatal("ERROR:", err.Error())
 	}
 
-	c := middlewares.NewAuthorizationMiddleware(sessionValidationURL)
-	m := c.Middleware()
+	sessionValidator := middlewares.NewAuthorizationMiddleware(sessionValidationURL)
+	sessionValidatorMiddleware := sessionValidator.Middleware()
 
-	mws := []gin.HandlerFunc{m}
+	userIdentification := middlewares.NewIdentificationMiddleware(userClaimsURL)
+	userIdentificationMiddleware := userIdentification.Middleware()
+
+	mws := []gin.HandlerFunc{sessionValidatorMiddleware, userIdentificationMiddleware}
 
 	routerFactory := krakendgin.NewFactory(krakendgin.Config{
 		Engine:         gin.Default(),
