@@ -8,14 +8,12 @@ export default function Quiz({ questions }) {
   const [selections, setSelections] = useState(
     new Array(questions.length).fill("")
   );
-  const [refresh, setRefresh] = useState(false);
 
   const setSelection = (idx, newSelection) => {
-    var newSelections = selections;
+    var newSelections = [...selections];
     newSelections[idx] = newSelection;
     console.log(newSelections);
     setSelections(newSelections);
-    setRefresh(!refresh);
   };
 
   const generateQuestions = () => {
@@ -41,7 +39,7 @@ export default function Quiz({ questions }) {
           </Grid>
         </Grid>
         <Grid item xs={3}>
-          <QuizSelections selections={selections} refresh={refresh} />
+          <QuizSelections selections={selections} />
         </Grid>
       </Grid>
     );

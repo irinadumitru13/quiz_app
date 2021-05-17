@@ -22,14 +22,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function QuizSelections({ selections, refresh }) {
+export default function QuizSelections({ selections }) {
   const classes = useStyles();
   const [currentSelections, setCurrentSelections] = useState(selections);
 
   useEffect(() => {
     console.log("called");
     setCurrentSelections(selections);
-  }, [refresh]);
+  }, [selections]);
 
   const getSelections = () => {
     return currentSelections.map((selection, idx) => {
