@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// IdentificationMiddleware provides user identification data
+// based on an authorization bearer token.
 type IdentificationMiddleware struct {
 	getClaimsURL string
 	client       *http.Client
@@ -18,13 +20,17 @@ type IdentificationMiddleware struct {
 
 // AccessDetails represents the information about the user provided
 // through the token.
-// Must be the same as in token_generator.go!
+// Must be the same as in
+// /odin-auth/session-manager/token-generator/token_generator.go!
+// TODO: remove once the repository is public and import it directly.
 type AccessDetails struct {
-	Uuid     string `json:"uuid"`
+	UUID     string `json:"uuid"`
 	UserId   uint64 `json:"uid"`
 	UserName string `json:"username"`
 }
 
+// NewIdentificationMiddleware expects an URL to fetch user data from
+// based on the authorization token and returns a new Identification Middleware.
 func NewIdentificationMiddleware(getClaimsURL string) *IdentificationMiddleware {
 	client := &http.Client{
 		Timeout: time.Second * 10,
@@ -32,8 +38,12 @@ func NewIdentificationMiddleware(getClaimsURL string) *IdentificationMiddleware 
 	return &IdentificationMiddleware{getClaimsURL, client}
 }
 
+// Middleware generates a gin middleware handler.
 func (m *IdentificationMiddleware) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Check the request URI and see if it starts with "/auth".
+		// Any traffic going to the authentication service doesn't
+		// require user identification so we just pass it to the next handler.
 		URI := c.Request.RequestURI[1:]
 		split := strings.Split(URI, "/")
 		if split[0] == "auth" {
@@ -41,8 +51,9 @@ func (m *IdentificationMiddleware) Middleware() gin.HandlerFunc {
 			return
 		}
 
+		// Extract the authorization bearer and create a new request
+		// containing the same header.
 		bearer := c.GetHeader("Authorization")
-
 		req, err := http.NewRequest("GET", m.getClaimsURL, nil)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "internal error")
@@ -51,7 +62,6 @@ func (m *IdentificationMiddleware) Middleware() gin.HandlerFunc {
 		}
 
 		req.Header.Add("Authorization", bearer)
-
 		resp, err := m.client.Do(req)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "internal error")
@@ -66,6 +76,7 @@ func (m *IdentificationMiddleware) Middleware() gin.HandlerFunc {
 			return
 		}
 
+		// Check if the user identification data was received.
 		if resp.StatusCode != http.StatusOK {
 			c.String(resp.StatusCode, string(body))
 			c.Abort()
@@ -76,8 +87,7 @@ func (m *IdentificationMiddleware) Middleware() gin.HandlerFunc {
 		json.NewDecoder(bytes.NewBuffer(body)).Decode(&ad)
 
 		// Add identification headers.
-		// TODO(seritandrei): change uuid to userid
-		c.Header("User-ID", ad.Uuid)
+		c.Header("User-Session-Id", ad.UUID)
 		c.Header("User-Name", ad.UserName)
 
 		c.Next()

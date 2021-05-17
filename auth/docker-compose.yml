@@ -9,7 +9,7 @@ services:
             - redis
 
     redis:
-        image: "redis"
+        image: redis
 
     io-adapter:
         build: io
