@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
     color: "black",
   },
   selected: {
-    backgroundColor: "#c2c0c0",
+    backgroundColor: "#c0c0c0",
   },
   questionStatus: {
     padding: theme.spacing(1),
