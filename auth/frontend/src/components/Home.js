@@ -50,13 +50,13 @@ const useStyles = makeStyles((theme) => ({
 export default function Home() {
   const classes = useStyles();
 
-  const [cookie] = useCookies(["token", "sessionInfo"]);
+  const [cookie] = useCookies(["token", "session_info"]);
 
   return (
     <div className={classes.root}>
       <Grid container spacing={2}>
         <Grid item xs={3}>
-          <UserInfo />
+          <UserInfo user={cookie.session_info} />
         </Grid>
         <Grid item xs={9}>
           <Quiz questions={questions} />
