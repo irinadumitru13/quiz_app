@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -20,15 +19,6 @@ func NewAuthorizationMiddleware(sessionManagerURL string) *AuthorizationMiddlewa
 		Timeout: time.Second * 10,
 	}
 	return &AuthorizationMiddleware{sessionManagerURL, client}
-}
-
-func ExtractToken(bearer string) (string, error) {
-	split := strings.Split(bearer, " ")
-	if len(split) != 2 {
-		return "", fmt.Errorf("no token provided")
-	}
-
-	return split[1], nil
 }
 
 func (m *AuthorizationMiddleware) Middleware() gin.HandlerFunc {
