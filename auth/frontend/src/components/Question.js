@@ -10,12 +10,8 @@ import {
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
-  margin: {
-    margin: theme.spacing(2),
+  padded: {
     padding: theme.spacing(4),
-  },
-  answers: {
-    margin: theme.spacing(4, 2, 0),
   },
 }));
 
@@ -46,11 +42,11 @@ export default function Question({ text, answers, selection, setSelection }) {
   };
 
   return (
-    <Paper className={classes.margin}>
+    <Paper className={classes.padded}>
       <Typography component="h1" variant="h5">
         {text}
       </Typography>
-      <div className={classes.answers}>{generateAnswers()}</div>
+      {generateAnswers()}
     </Paper>
   );
 }
