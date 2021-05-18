@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"strconv"
@@ -13,7 +14,11 @@ import (
 	"github.com/devopsfaith/krakend/router"
 	"github.com/gin-gonic/gin"
 
+	metricsgin "github.com/devopsfaith/krakend-metrics/gin"
 	krakendgin "github.com/devopsfaith/krakend/router/gin"
+	influxdb "github.com/letgoapp/krakend-influx"
+
+	_ "github.com/devopsfaith/krakend-opencensus/exporter/influxdb"
 )
 
 func getEnvWithDefault(key, fallback string) string {
@@ -61,13 +66,22 @@ func main() {
 	userIdentification := middlewares.NewIdentificationMiddleware(userClaimsURL)
 	userIdentificationMiddleware := userIdentification.Middleware()
 
+	ctx := context.Background()
+	metric := metricsgin.New(ctx, serviceConfig.ExtraConfig, logger)
+
+	if err := influxdb.New(ctx, serviceConfig.ExtraConfig, metric, logger); err != nil {
+		log.Fatal("ERROR:", err.Error())
+	}
+
+	pf := proxy.NewDefaultFactory(metric.DefaultBackendFactory(), logger)
+
 	mws := []gin.HandlerFunc{sessionValidatorMiddleware, userIdentificationMiddleware}
 
 	routerFactory := krakendgin.NewFactory(krakendgin.Config{
 		Engine:         gin.Default(),
-		ProxyFactory:   customProxyFactory{logger, proxy.DefaultFactory(logger)},
+		ProxyFactory:   customProxyFactory{logger, metric.ProxyFactory("pipe", pf)},
 		Logger:         logger,
-		HandlerFactory: krakendgin.EndpointHandler,
+		HandlerFactory: metric.NewHTTPHandlerFactory(krakendgin.EndpointHandler),
 		Middlewares:    mws,
 		RunServer:      router.RunServer,
 	})
@@ -75,13 +89,13 @@ func main() {
 	routerFactory.New().Run(serviceConfig)
 }
 
-// customProxyFactory adds a logging middleware wrapping the internal factory
+// customProxyFactory adds a logging middleware wrapping the internal factory.
 type customProxyFactory struct {
 	logger  logging.Logger
 	factory proxy.Factory
 }
 
-// New implements the Factory interface
+// New implements the Factory interface.
 func (cf customProxyFactory) New(cfg *config.EndpointConfig) (p proxy.Proxy, err error) {
 	p, err = cf.factory.New(cfg)
 	if err == nil {
