@@ -1,4 +1,4 @@
-FROM golang:alpine
+FROM golang:buster
 
 # Set necessary environmet variables needed for our image
 ENV GO111MODULE=on \
