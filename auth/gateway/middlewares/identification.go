@@ -87,8 +87,8 @@ func (m *IdentificationMiddleware) Middleware() gin.HandlerFunc {
 		json.NewDecoder(bytes.NewBuffer(body)).Decode(&ad)
 
 		// Add identification headers.
-		c.Header("User-Session-Id", ad.UUID)
-		c.Header("User-Name", ad.UserName)
+		c.Request.Header.Set("User-Session-Id", ad.UUID)
+		c.Request.Header.Set("User-Name", ad.UserName)
 
 		c.Next()
 	}
