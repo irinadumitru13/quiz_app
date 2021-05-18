@@ -56,7 +56,6 @@ services:
       - ./gateway/configuration.json:/dist/configuration.json
     ports:
       - 8004:8004
-      - 8090:8090
 
   gateway-influx:
     build: influx
