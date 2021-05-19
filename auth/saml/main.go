@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -19,6 +22,11 @@ type ServiceProvider struct {
 	middleware *samlsp.Middleware
 }
 
+type userCredentials struct {
+	UserID   uint64 `json:"id"`
+	UserName string `json:"username"`
+}
+
 var sessionManagerURL string
 
 func getEnvWithDefault(key, fallback string) string {
@@ -28,12 +36,38 @@ func getEnvWithDefault(key, fallback string) string {
 	return fallback
 }
 
-func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %s!", samlsp.AttributeFromContext(r.Context(), "uid"))
+func generateToken(w http.ResponseWriter, r *http.Request) {
+	var uc userCredentials
+	uc.UserName = samlsp.AttributeFromContext(r.Context(), "uid")
+
+	// Send session token request
+	json_data, err := json.Marshal(uc)
+	if err != nil {
+		http.Error(w, "malformed JSON", http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := http.Post(sessionManagerURL+"/generate", "application/json", bytes.NewBuffer(json_data))
+	if err != nil {
+		http.Error(w, "failed to generate session token", http.StatusInternalServerError)
+		return
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, "failed to decode body", http.StatusInternalServerError)
+		return
+	}
+	if resp.StatusCode != http.StatusCreated {
+		http.Error(w, string(body), resp.StatusCode)
+		return
+	}
+
+	fmt.Fprintf(w, string(body))
 }
 
 func main() {
-	sessionManagerURL := getEnvWithDefault("SESSION_MANAGER", "session-manager")
+	sessionManagerURL = getEnvWithDefault("SESSION_MANAGER", "session-manager")
 	samlPort := getEnvWithDefault("SAML_PORT", "8003")
 	samlIDP := getEnvWithDefault("SAML_IDP", "https://samltest.id/saml/idp")
 	samlRoot := getEnvWithDefault("SAML_ROOT", "http://localhost:"+samlPort)
@@ -89,7 +123,7 @@ func NewServiceProvider(name, idp, root string) (*ServiceProvider, error) {
 }
 
 func (s *ServiceProvider) Run(port string) {
-	app := http.HandlerFunc(hello)
+	app := http.HandlerFunc(generateToken)
 	http.Handle("/saml/", s.middleware)
 	http.Handle("/", s.middleware.RequireAccount(app))
 	http.ListenAndServe(port, nil)
