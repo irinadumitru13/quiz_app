@@ -20,7 +20,7 @@ const getAllAsync = async () => {
 const getByQuizIdAsync = async (quiz_id) => {
     console.info(`Getting the questions with quiz_id ${quiz_id} from database async...`);
 
-    const questions = await queryAsync('SELECT * FROM QUESTIONS WHERE quiz_id = $1', [quiz_id]);
+    const questions = await queryAsync('SELECT question_id, question FROM QUESTIONS WHERE quiz_id = $1', [quiz_id]);
 
     return questions;
 };
@@ -28,7 +28,7 @@ const getByQuizIdAsync = async (quiz_id) => {
 const updateAllByIdAsync = async (id, quiz_id, question) => {
     console.info(`Updating the question with id ${id} from database async...`);
 
-    const questions =  await queryAsync('UPDATE QUESTIONS SET quiz_id = $1, question = $2 WHERE id = $3 RETURNING *',
+    const questions =  await queryAsync('UPDATE QUESTIONS SET quiz_id = $1, question = $2 WHERE question_id = $3 RETURNING *',
         [quiz_id, question, id]);
 
     return questions[0];
@@ -37,7 +37,7 @@ const updateAllByIdAsync = async (id, quiz_id, question) => {
 const updateQuizIdByIdAsync = async (id, quiz_id) => {
     console.info(`Updating the question's quiz_id with id ${id} from database async...`);
 
-    const questions =  await queryAsync('UPDATE QUESTIONS SET quiz_id = $1 WHERE id = $2 RETURNING *',
+    const questions =  await queryAsync('UPDATE QUESTIONS SET quiz_id = $1 WHERE question_id = $2 RETURNING *',
         [quiz_id, id]);
 
     return questions[0];
@@ -46,7 +46,7 @@ const updateQuizIdByIdAsync = async (id, quiz_id) => {
 const updateQuestionByIdAsync = async (id, question) => {
     console.info(`Updating the question's text with id ${id} from database async...`);
 
-    const questions =  await queryAsync('UPDATE QUESTIONS SET question = $1 WHERE id = $2 RETURNING *',
+    const questions =  await queryAsync('UPDATE QUESTIONS SET question = $1 WHERE question_id = $2 RETURNING *',
         [question, id]);
 
     return questions[0];
@@ -55,7 +55,7 @@ const updateQuestionByIdAsync = async (id, question) => {
 const deleteByIdAsync = async (id) => {
     console.info(`Deleting the question with id ${id} from database async...`);
 
-    const quiz = await queryAsync('DELETE FROM QUESTIONS WHERE id = $1 RETURNING *', [id]);
+    const quiz = await queryAsync('DELETE FROM QUESTIONS WHERE question_id = $1 RETURNING *', [id]);
 
     return quiz[0];
 };

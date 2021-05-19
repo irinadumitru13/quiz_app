@@ -6,7 +6,6 @@ const ServerError = require('../errors/ServerError.js');
 const ResponseFilter = require('../filters/ResponseFilter.js');
 
 Router.post('/', async (req, res) => {
-    // could make model to verify input -> so that data types are ok :D
     if (!req.body.hasOwnProperty("question_id") || !req.body.hasOwnProperty("answer")
         || !req.body.hasOwnProperty("is_correct") || !req.body.hasOwnProperty("points")) {
         throw new ServerError("Body is incorrect.", 400);

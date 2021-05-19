@@ -1,6 +1,8 @@
 const Router = require('express').Router();
 
 const QuizRepository = require('../repository/QuizRepository.js');
+const QuestionsRepository = require('../repository/QuestionsRepository.js');
+const AnswersRepository = require('../repository/AnswersRepository.js');
 const ServerError = require('../errors/ServerError.js');
 
 const ResponseFilter = require('../filters/ResponseFilter.js');
@@ -8,19 +10,34 @@ const ResponseFilter = require('../filters/ResponseFilter.js');
 Router.post('/', async (req, res) => {
     // could make model to verify input -> so that data types are ok :D
     if (!req.body.hasOwnProperty("quiz_name") || !req.body.hasOwnProperty("due_date")
-        || !req.body.hasOwnProperty("allocated_time")) {
+        || !req.body.hasOwnProperty("allocated_time") || !req.body.hasOwnProperty("questions")) {
         throw new ServerError("Body is incorrect.", 400);
     }
 
     let {
         quiz_name,
         due_date,
-        allocated_time
+        allocated_time,
+        questions
     } = req.body;
 
-    const result = await QuizRepository.addAsync(quiz_name, due_date, allocated_time);
+    const result_quiz = await QuizRepository.addAsync(quiz_name, due_date, allocated_time);
 
-    ResponseFilter.setResponseDetails(res, 201, result, req.originalUrl);
+    for (let question of questions) {
+        if (!question.hasOwnProperty("question") || !question.hasOwnProperty("answers"))
+            throw new ServerError("Body is incorrect.", 400);
+
+        let result_question = await QuestionsRepository.addAsync(result_quiz.quiz_id, question.question);
+
+        for (let answer of question.answers) {
+            if (!answer.hasOwnProperty("answer") || !answer.hasOwnProperty("is_correct") || !answer.hasOwnProperty("points"))
+                throw new ServerError("Body is incorrect.", 400);
+
+            let result_answer = await AnswersRepository.addAsync(result_question.question_id, answer.answer, answer.is_correct, answer.points);
+        }
+    }
+
+    ResponseFilter.setResponseDetails(res, 201, `Quiz ${result_quiz.quiz_id} added in the database`, req.originalUrl);
 });
 
 Router.get('/', async (req, res) => {
@@ -50,6 +67,13 @@ Router.get('/:id', async (req, res) => {
 
     if (!result) {
         throw new ServerError(`Quiz with id ${id} does not exist!`, 404);
+    }
+
+    result.questions = await QuestionsRepository.getByQuizIdAsync(id);
+
+    for await (let question of result.questions) {
+        if (question.hasOwnProperty("question_id"))
+            question.answers = await AnswersRepository.getByQuestionIdAsync(question.question_id);
     }
 
     ResponseFilter.setResponseDetails(res, 200, result);

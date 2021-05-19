@@ -1,28 +1,39 @@
 const Router = require('express').Router();
 
 const QuestionsRepository = require('../repository/QuestionsRepository.js');
+const AnswersRepository = require('../repository/AnswersRepository.js');
 const ServerError = require('../errors/ServerError.js');
 
 const ResponseFilter = require('../filters/ResponseFilter.js');
 
 Router.post('/', async (req, res) => {
-    // could make model to verify input -> so that data types are ok :D
-    if (!req.body.hasOwnProperty("quiz_id") || !req.body.hasOwnProperty("question")) {
+    if (!req.body.hasOwnProperty("quiz_id") || !req.body.hasOwnProperty("question") || !req.body.hasOwnProperty("answers")) {
         throw new ServerError("Body is incorrect.", 400);
     }
 
     let {
         quiz_id,
-        question
+        question,
+        answers
     } = req.body;
 
     const result = await QuestionsRepository.addAsync(quiz_id, question);
 
-    ResponseFilter.setResponseDetails(res, 201, result, req.originalUrl);
+    for (let answer of answers) {
+        if (!answer.hasOwnProperty("answer") || !answer.hasOwnProperty("is_correct") || !answer.hasOwnProperty("points"))
+            throw new ServerError("Body is incorrect.", 400);
+        await AnswersRepository.addAsync(result.question_id, answer.answer, answer.is_correct, answer.points);
+    }
+
+    ResponseFilter.setResponseDetails(res, 201, `Question ${result.question_id} added in the database.`, req.originalUrl);
 });
 
 Router.get('/', async (req, res) => {
     const result = await QuestionsRepository.getAllAsync();
+
+    for await (let question of result) {
+        question.answers = await AnswersRepository.getByQuestionIdAsync(question.question_id);
+    }
 
     ResponseFilter.setResponseDetails(res, 200, result);
 });
@@ -39,6 +50,10 @@ Router.get('/:quiz_id', async (req, res) => {
     }
 
     const result = await QuestionsRepository.getByQuizIdAsync(quiz_id);
+
+    for await (let question of result) {
+        question.answers = await AnswersRepository.getByQuestionIdAsync(question.question_id);
+    }
 
     ResponseFilter.setResponseDetails(res, 200, result);
 });
