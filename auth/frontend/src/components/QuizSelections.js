@@ -27,7 +27,6 @@ export default function QuizSelections({ selections }) {
   const [currentSelections, setCurrentSelections] = useState(selections);
 
   useEffect(() => {
-    console.log("called");
     setCurrentSelections(selections);
   }, [selections]);
 
