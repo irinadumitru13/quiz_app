@@ -45,6 +45,17 @@ services:
       - ./login_manager/myservice.cert:/dist/myservice.cert
       - ./login_manager/myservice.key:/dist/myservice.key
 
+  saml:
+    build: saml
+    environment:
+      - SESSION_MANAGER=http://session-manager:8000
+      - SAML_PORT=8003
+      - SAML_IDP=https://samltest.id/saml/idp
+      - SAML_ROOT=http://localhost:8003
+      - SAML_NAME=myservice
+    ports:
+      - 8003:8003
+
   gateway:
     build: gateway
     environment:

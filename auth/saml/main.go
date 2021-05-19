@@ -1,4 +1,4 @@
-package saml
+package main
 
 import (
 	"context"
@@ -6,8 +6,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/crewjam/saml/samlsp"
 )
@@ -17,10 +19,36 @@ type ServiceProvider struct {
 	middleware *samlsp.Middleware
 }
 
+var sessionManagerURL string
+
+func getEnvWithDefault(key, fallback string) string {
+	if e, ok := os.LookupEnv(key); ok {
+		return e
+	}
+	return fallback
+}
+
 // TODO(seritandrei): add token and session generation
 func hello(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie("token")
 	fmt.Fprintf(w, "%s", cookie.Value)
+}
+
+func main() {
+	sessionManagerURL := getEnvWithDefault("SESSION_MANAGER", "session-manager")
+	samlPort := getEnvWithDefault("SAML_PORT", "8003")
+	samlIDP := getEnvWithDefault("SAML_IDP", "https://samltest.id/saml/idp")
+	samlRoot := getEnvWithDefault("SAML_ROOT", "http://localhost:"+samlPort)
+	samlName := getEnvWithDefault("SAML_NAME", "myservice")
+
+	log.Printf("Using session-manager at %q", sessionManagerURL)
+
+	samlSP, err := NewServiceProvider(samlName, samlIDP, samlRoot)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	samlSP.Run(":" + samlPort)
 }
 
 func NewServiceProvider(name, idp, root string) (*ServiceProvider, error) {
