@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"os"
 
-	"odin-login-manager/saml"
-
 	"github.com/gin-gonic/gin"
 	"gopkg.in/validator.v2"
 )
@@ -20,8 +18,8 @@ type UserCredentials struct {
 	Password string `json:"password" validate:"min=8,max=50"`
 }
 
-var sessionManagerURL = "localhost"
-var ioAdapterURL = "localhost"
+var sessionManagerURL string
+var ioAdapterURL string
 
 func getEnvWithDefault(key, fallback string) string {
 	if e, ok := os.LookupEnv(key); ok {
@@ -62,22 +60,12 @@ func main() {
 	ioAdapterURL = getEnvWithDefault("IO_ADAPTER", "io-adapter")
 	port := getEnvWithDefault("PORT", "8000")
 
-	samlPort := getEnvWithDefault("SAML_PORT", "8003")
-	samlIDP := getEnvWithDefault("SAML_IDP", "https://samltest.id/saml/idp")
-	samlRoot := getEnvWithDefault("SAML_ROOT", "http://localhost:"+samlPort)
-	samlName := getEnvWithDefault("SAML_NAME", "myservice")
-
 	log.Printf("Using session-manager at %q", sessionManagerURL)
 	log.Printf("Using io-adapter at %q", ioAdapterURL)
 
 	r := setupRouter()
-	samlSP, err := saml.NewServiceProvider(samlName, samlIDP, samlRoot)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	go r.Run(":" + port)
-	samlSP.Run(":" + samlPort)
+	r.Run(":" + port)
 }
 
 func localLoginPOST(c *gin.Context) {
