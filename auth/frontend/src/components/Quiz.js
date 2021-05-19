@@ -12,7 +12,6 @@ export default function Quiz({ questions }) {
   const setSelection = (idx, newSelection) => {
     var newSelections = [...selections];
     newSelections[idx] = newSelection;
-    console.log(newSelections);
     setSelections(newSelections);
   };
 
