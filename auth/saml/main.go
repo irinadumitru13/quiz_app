@@ -28,10 +28,8 @@ func getEnvWithDefault(key, fallback string) string {
 	return fallback
 }
 
-// TODO(seritandrei): add token and session generation
 func hello(w http.ResponseWriter, r *http.Request) {
-	cookie, _ := r.Cookie("token")
-	fmt.Fprintf(w, "%s", cookie.Value)
+	fmt.Fprintf(w, "Hello, %s!", samlsp.AttributeFromContext(r.Context(), "uid"))
 }
 
 func main() {
