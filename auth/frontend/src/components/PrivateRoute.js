@@ -9,7 +9,11 @@ export default function PrivateRoute({ component: Component, ...rest }) {
     <Route
       {...rest}
       render={(props) =>
-        cookie.token !== "" ? <Component {...props} /> : <Redirect to="/" />
+        cookie.token !== undefined ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to="/login" />
+        )
       }
     />
   );
