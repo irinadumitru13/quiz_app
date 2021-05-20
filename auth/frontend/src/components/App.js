@@ -7,13 +7,14 @@ import Login from "./Login";
 import Register from "./Register";
 import PrivateRoute from "./PrivateRoute";
 import Home from "./Home";
+import Challenge from "./Challenge";
 
 export default function App() {
   const [cookie, setCookie] = useCookies(["token", "sessionInfo"]);
 
   const saveToken = (tokenString) => {
-    setCookie("token", tokenString, { path: "/" });
     let decoded = jwt_decode(tokenString);
+    setCookie("token", tokenString, { path: "/" });
     setCookie("session_info", decoded, { path: "/" });
   };
 
@@ -28,6 +29,11 @@ export default function App() {
           />
           <Route path="/register" component={Register} />
           <PrivateRoute path="/home" token={cookie.token} component={Home} />
+          <PrivateRoute
+            path="/quiz/:id"
+            token={cookie.token}
+            component={Challenge}
+          />
         </Switch>
       </Router>
     </div>
