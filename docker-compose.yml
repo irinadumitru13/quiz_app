@@ -43,6 +43,97 @@ services:
       - 8080:8080
     networks:
       - quiz-database-admin
+      - user-database-admin
+
+  session-manager-db:
+    image: redis
+    networks:
+      - session-manager-internal
+
+  session-manager:
+    build: auth/session_manager
+    environment:
+      PORT: 8000
+      REDIS_DNS: session-manager-db
+    depends_on:
+      - session-manager-db
+    networks:
+      - gateway-internal
+      - session-manager-internal
+      - login-manager-internal
+
+  user-db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=quiz-app
+    volumes:
+      - ./auth/io/db_init/users_init.sql:/docker-entrypoint-initdb.d/1-schema.sql
+    networks:
+      - io-login-manager-internal
+      - user-database-admin
+
+  io-login-manager:
+    build: auth/io
+    environment:
+      PORT: 8001
+      SQL_USER: admin
+      SQL_PASSWORD: admin
+      SQL_DATABASE: quiz-app
+      SQL_HOST: user-db
+    depends_on:
+      - user-db
+    networks:
+      - io-login-manager-internal
+      - login-manager-internal
+
+  login-manager:
+    build: auth/login_manager
+    environment:
+      PORT: 8002
+      SESSION_MANAGER: http://session-manager:8000
+      IO_ADAPTER: http://io-login-manager:8001
+    depends_on:
+      - io-login-manager
+      - session-manager
+    networks:
+      - gateway-internal
+      - login-manager-internal
+
+  gateway:
+    build: auth/gateway
+    environment:
+      PORT: 8004
+      CONFIG: configuration.json
+      SESSION_VALIDATION_URL: http://session-manager:8000/validate
+    volumes:
+      - ./auth/gateway/configuration.json:/dist/configuration.json
+    ports:
+      - 8004:8004
+    networks:
+      - gateway-internal
+
+  gateway-influx:
+    build: auth/influx
+    environment:
+      INFLUXDB_HTTP_ENABLED: "true"
+      INFLUXDB_HTTP_FLUX_ENABLED: "true"
+    networks:
+      - gateway-internal
+      - grafana-internal
+
+  grafana:
+    build: auth/grafana
+    ports:
+      - 3001:3000
+    networks:
+      - grafana-internal
+
+  frontend:
+    build: auth/frontend
+    ports:
+      - 80:80
 
 volumes:
   quiz-db-volume:
@@ -51,3 +142,9 @@ networks:
   quiz:
   quiz-database:
   quiz-database-admin:
+  gateway-internal:
+  session-manager-internal:
+  io-login-manager-internal:
+  login-manager-internal:
+  user-database-admin:
+  grafana-internal:

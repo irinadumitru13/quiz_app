@@ -37,13 +37,6 @@ services:
       - PORT=8002
       - SESSION_MANAGER=http://session-manager:8000
       - IO_ADAPTER=http://io-adapter:8001
-      - SAML_PORT=8003
-      - SAML_IDP=https://samltest.id/saml/idp
-      - SAML_ROOT=http://localhost:8003
-      - SAML_NAME=myservice
-    volumes:
-      - ./login_manager/myservice.cert:/dist/myservice.cert
-      - ./login_manager/myservice.key:/dist/myservice.key
 
   saml:
     build: saml
