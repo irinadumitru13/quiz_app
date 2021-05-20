@@ -1,6 +1,16 @@
 version: "3.8"
 
 services:
+  quiz-service:
+    build: QuizMicroservice
+    environment:
+      IO_SERVICE_API_ROUTE: io-quiz-service/api
+      NODE_ENV: development
+    ports:
+      - 3000:80
+    networks:
+      - quiz
+
   io-quiz-service:
     build: IOQuizMicroservice
     environment:
@@ -10,9 +20,8 @@ services:
       PGPORT: 5432
       PGDATABASE: quiz-app
       NODE_ENV: development
-    ports:
-      - 3000:3000
     networks:
+      - quiz
       - quiz-database
 
   quiz-db:
@@ -21,8 +30,6 @@ services:
       POSTGRES_DB: quiz-app
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-#    ports:
-#      - 5432:5432
     volumes:
       - ./Database/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
       - quiz-db-volume:/var/lib/postgresql/data
@@ -41,5 +48,6 @@ volumes:
   quiz-db-volume:
 
 networks:
+  quiz:
   quiz-database:
   quiz-database-admin:
