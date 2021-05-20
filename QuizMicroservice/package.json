@@ -1,7 +1,7 @@
 {
-  "name": "ioquizmicroservice",
+  "name": "quizmicroservice",
   "version": "1.0.0",
-  "description": "io microservice - quiz app",
+  "description": "business logic microservice - quiz app",
   "main": "start.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,14 +11,14 @@
   "author": "Dumitru Irina-Alexandra",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.1",
     "docker-secret": "^1.1.2",
     "express": "^4.17.1",
     "express-async-errors": "^3.1.1",
-    "helmet": "^4.6.0",
+    "helmet": "^4.1.1",
     "http-errors": "^1.8.0",
     "log-timestamp": "^0.3.0",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.6",
-    "pg": "^8.6.0"
+    "nodemon": "^2.0.6"
   }
 }

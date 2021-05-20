@@ -3,12 +3,12 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const createError = require('http-errors');
 
-const ServerError = require('./errors/ServerError.js');
-
 require('express-async-errors');
 require('log-timestamp');
 
-const routes = require('./routes.js');
+const routes = require('./controllers.js');
+
+const { ServerError } = require('./errors');
 
 const app = express();
 
@@ -21,16 +21,17 @@ app.use('/api', routes);
 
 app.use((err, req, res, next) => {
     console.error(err);
-    let status = err.get;
-    let message = 'Something Bad Happened';
-
+    let status = 500;
+    let message = "Something Bad Happened";
     if (err instanceof ServerError) {
-        message = err.Message;
-        status = err.StatusCode;
+        status = err.httpStatus;
+        message = err.message;
+    } else if (err.isAxiosError) {
+        return next(createError(err.response.status, err));
     }
-
     return next(createError(status, message));
 });
+
 
 const port = process.env.PORT || 80;
 

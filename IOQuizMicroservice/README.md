@@ -11,8 +11,8 @@
         {
             "quiz_id": int,
             "quiz_name": string,
-            "due_date": timestamp - string,
-            "allocated_time" - int
+            "start_date": timestamp - string,
+            "due_date": timestamp - string
         }
     ]
 
@@ -26,9 +26,7 @@
     [
         {
             "quiz_id": int,
-            "quiz_name": string,
-            "due_date": timestamp - string,
-            "allocated_time" - int
+            "quiz_name": string
         }
     ]
 
@@ -41,6 +39,7 @@
     {
         "quiz_id": int,
         "quiz_name": string,
+        "start_date": timestamp - string,
         "due_date": timestamp - string,
         "allocated_time": int.
         "questions": [
@@ -70,6 +69,7 @@
 
     {
         "quiz_name": string,
+        "start_date": timestamp - string,
         "due_date": timestamp - string,
         "allocated_time": int.
         "questions": [
@@ -97,6 +97,7 @@
 
     {
         "quiz_name": string,
+        "start_date": timestamp - string,
         "due_date": timestamp - string,
         "allocated_time": int
     }

@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS QUIZ (
     quiz_id         SERIAL                              PRIMARY KEY,
     quiz_name       varchar     NOT NULL    UNIQUE,
+    start_date      timestamp   NOT NULL,
     due_date        timestamp   NOT NULL,
     allocated_time  integer     NOT NULL
 );
