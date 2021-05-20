@@ -5,6 +5,7 @@ import { CookiesProvider } from "react-cookie";
 import AlertTemplate from "react-alert-template-basic";
 
 import App from "./components/App";
+import "./index.css";
 
 const options = {
   position: positions.TOP_RIGHT,

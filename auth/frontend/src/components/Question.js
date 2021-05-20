@@ -30,9 +30,9 @@ export default function Question({ text, answers, selection, setSelection }) {
             return (
               <FormControlLabel
                 key={idx}
-                value={answer}
+                value={answer.answer}
                 control={<Radio />}
-                label={answer}
+                label={answer.answer}
               />
             );
           })}

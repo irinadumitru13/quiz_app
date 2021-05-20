@@ -20,10 +20,16 @@ const useStyles = makeStyles((theme) => ({
   statusInFuture: {
     color: "gray",
   },
+  bullet: {
+    display: "inline-block",
+    margin: "0 2px",
+    transform: "scale(1.5)",
+  },
 }));
 
-export default function QuizPreview({ quizTitle, status }) {
+export default function QuizPreview({ quizTitle, status, onClick }) {
   const classes = useStyles();
+  const bull = <span className={classes.bullet}>•</span>;
 
   const statusClass =
     status === "open"
@@ -33,11 +39,15 @@ export default function QuizPreview({ quizTitle, status }) {
       : classes.statusInFuture;
 
   return (
-    <Paper className={classes.padded}>
+    <Paper className={classes.padded} onClick={onClick}>
       <Typography component="h1" variant="h6">
         {quizTitle}
       </Typography>
-      <Typography className={statusClass}>{status}</Typography>
+      <Typography>
+        <span className={statusClass}>{bull}</span>
+        {" Status: "}
+        <span className={statusClass}>{status}</span>
+      </Typography>
     </Paper>
   );
 }

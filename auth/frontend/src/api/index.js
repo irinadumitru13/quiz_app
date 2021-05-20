@@ -84,8 +84,8 @@ export async function getQuizById(id) {
   if (response.status !== 200) {
     throw new Error("failed to fetch quizzes");
   } else {
-    const data = response.json();
-    return data;
+    const data = await response.json();
+    return data.response;
   }
 }
 

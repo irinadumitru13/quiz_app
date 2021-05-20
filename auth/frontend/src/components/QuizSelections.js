@@ -4,8 +4,9 @@ import { Grid, Paper, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
-    padding: theme.spacing(4),
-    position: "fixed",
+    padding: theme.spacing(3),
+    // position: "fixed",
+    // right: theme.spacing(2),
   },
   notSelected: {
     color: "black",
