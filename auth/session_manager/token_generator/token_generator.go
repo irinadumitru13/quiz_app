@@ -28,9 +28,10 @@ type TokenDetails struct {
 // AccessDetails represents the information about the user provided
 // through the token.
 type AccessDetails struct {
-	Uuid     string `json:"uuid"`
-	UserId   uint64 `json:"uid"`
-	UserName string `json:"username"`
+	Uuid           string `json:"uuid"`
+	UserId         uint64 `json:"uid"`
+	UserName       string `json:"username"`
+	UserPermission uint64 `json:"permissions"`
 }
 
 type TokenGenerator struct {
@@ -40,8 +41,9 @@ type TokenGenerator struct {
 }
 
 type redisEntry struct {
-	UserId   uint64
-	UserName string
+	UserId         uint64
+	UserName       string
+	UserPermission uint64
 }
 
 func NewTokenGenerator(redisDNS string, expiration time.Duration, secret string) (*TokenGenerator, error) {
@@ -62,7 +64,7 @@ func NewTokenGenerator(redisDNS string, expiration time.Duration, secret string)
 }
 
 // CreateToken takes in user information and encodes it in a token.
-func (g *TokenGenerator) CreateToken(userId uint64, userName string) (*TokenDetails, error) {
+func (g *TokenGenerator) CreateToken(userId uint64, userName string, permissions uint64) (*TokenDetails, error) {
 	td := &TokenDetails{}
 	td.Expires = time.Now().Add(g.expirationTime).Unix()
 	td.Uuid = uuid.NewV4().String()
@@ -72,6 +74,7 @@ func (g *TokenGenerator) CreateToken(userId uint64, userName string) (*TokenDeta
 	claims["uuid"] = td.Uuid
 	claims["user_id"] = userId
 	claims["user_name"] = userName
+	claims["user_permissions"] = permissions
 	claims["exp"] = td.Expires
 
 	var err error
@@ -85,14 +88,15 @@ func (g *TokenGenerator) CreateToken(userId uint64, userName string) (*TokenDeta
 
 // CreateSession takes in user information and the token details it is tied to
 // and creates an entry in the Redis database for later session validation.
-func (g *TokenGenerator) CreateSession(userId uint64, userName string, td *TokenDetails) error {
+func (g *TokenGenerator) CreateSession(userId uint64, userName string, userPermissions uint64, td *TokenDetails) error {
 	// Convert Unix to UTC
 	t := time.Unix(td.Expires, 0)
 	now := time.Now()
 
 	re := &redisEntry{
-		UserId:   userId,
-		UserName: userName,
+		UserId:         userId,
+		UserName:       userName,
+		UserPermission: userPermissions,
 	}
 
 	// Encode the RedisEntry as a json to store in the db.

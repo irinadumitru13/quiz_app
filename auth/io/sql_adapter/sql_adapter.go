@@ -14,8 +14,9 @@ type Adapter struct {
 }
 
 type UserInfo struct {
-	ID   int64  `json:"id"`
-	Name string `json:"username"`
+	ID          uint64 `json:"id"`
+	Name        string `json:"username"`
+	Permissions uint64 `json:"permissions"`
 }
 
 func NewAdapter(db *sql.DB) *Adapter {

@@ -13,9 +13,10 @@ import (
 )
 
 type UserCredentials struct {
-	UserID   uint64 `json:"id"`
-	UserName string `json:"username" validate:"min=5,max=50,regexp=^[a-zA-Z0-9]*$"`
-	Password string `json:"password" validate:"min=8,max=50"`
+	UserID     uint64 `json:"id"`
+	UserName   string `json:"username" validate:"min=5,max=50,regexp=^[a-zA-Z0-9]*$"`
+	Password   string `json:"password" validate:"min=8,max=50"`
+	Permission uint64 `json:"permissions"`
 }
 
 var sessionManagerURL string

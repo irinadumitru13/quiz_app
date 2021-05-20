@@ -12,9 +12,10 @@ import (
 )
 
 type UserCredentials struct {
-	UserID   uint64 `json:"id"`
-	UserName string `json:"username"`
-	Password string `json:"password"`
+	UserID      uint64 `json:"id"`
+	UserName    string `json:"username"`
+	Password    string `json:"password"`
+	Permissions uint64 `json:"permissions"`
 }
 
 var tokenGenerator *tg.TokenGenerator
@@ -69,13 +70,13 @@ func generateTokenPOST(c *gin.Context) {
 		return
 	}
 
-	td, err := tokenGenerator.CreateToken(uc.UserID, uc.UserName)
+	td, err := tokenGenerator.CreateToken(uc.UserID, uc.UserName, uc.Permissions)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "failed to generate token, please retry")
 		return
 	}
 
-	if err = tokenGenerator.CreateSession(uc.UserID, uc.UserName, td); err != nil {
+	if err = tokenGenerator.CreateSession(uc.UserID, uc.UserName, uc.Permissions, td); err != nil {
 		c.String(http.StatusInternalServerError, "failed to generate token, please retry")
 		return
 	}
