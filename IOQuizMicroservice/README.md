@@ -265,7 +265,7 @@
 
 - the request body may contain any combination of those fields, as long as the body is not empty, which will result in error
 
-#### DELETE /answer/:id
+#### DELETE /answers/:id
 - delete the answer with id
 - Status:
   - 204 NO CONTENT if OK

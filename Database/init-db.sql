@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS QUIZ (
 CREATE TABLE IF NOT EXISTS QUESTIONS (
     question_id              SERIAL                     PRIMARY KEY,
     quiz_id         integer,
-    question        varchar     NOT NULL    UNIQUE,
+    question        varchar     NOT NULL,
 
     CONSTRAINT fk_quiz_id
         FOREIGN KEY (quiz_id)
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS QUESTIONS (
 CREATE TABLE IF NOT EXISTS ANSWERS (
     answer_id              SERIAL                       PRIMARY KEY,
     question_id     integer,
-    answer          varchar     NOT NULL    UNIQUE,
+    answer          varchar     NOT NULL,
     is_correct      boolean     NOT NULL,
     points          integer     NOT NULL    DEFAULT 0,
 
