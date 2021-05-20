@@ -9,6 +9,7 @@ const useStyles = makeStyles((theme) => ({
     transitionProperty: "transform",
     "&:hover": {
       transform: "scale(1.1)",
+      cursor: "pointer",
     },
   },
   statusOpen: {

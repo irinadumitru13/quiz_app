@@ -32,7 +32,7 @@ function Copyright() {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    height: "100%",
+    flexGrow: 1,
   },
   image: {
     backgroundImage: "url(https://source.unsplash.com/random)",

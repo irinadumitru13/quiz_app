@@ -31,8 +31,8 @@ export default function App() {
 
   return (
     <div className={classes.app}>
-      <MenuAppBar auth={cookie.token !== undefined} />
       <Router>
+        <MenuAppBar auth={cookie.token !== undefined} />
         <Switch>
           <Route
             exact

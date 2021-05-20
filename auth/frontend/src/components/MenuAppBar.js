@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useCookies } from "react-cookie";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   AppBar,
@@ -13,22 +14,24 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
+    flexGrow: 0,
   },
   menuButton: {
     marginRight: theme.spacing(2),
   },
   title: {
     flexGrow: 1,
+    "&:hover": {
+      cursor: "pointer",
+    },
   },
 }));
 
 export default function MenuAppBar({ auth }) {
-  const [cookie, setCookie, removeCookie] = useCookies([
-    "token",
-    "sessionInfo",
-  ]);
   const classes = useStyles();
+  const history = useHistory();
+
+  const [, , removeCookie] = useCookies(["token", "sessionInfo"]);
   const [currentAuth, setCurrentAuth] = useState(auth);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -45,6 +48,10 @@ export default function MenuAppBar({ auth }) {
     setAnchorEl(null);
   };
 
+  const handleHome = () => {
+    history.push("/");
+  };
+
   const handleLogout = () => {
     removeCookie("token");
     removeCookie("session_info");
@@ -55,7 +62,11 @@ export default function MenuAppBar({ auth }) {
     <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" className={classes.title}>
+          <Typography
+            variant="h6"
+            className={classes.title}
+            onClick={handleHome}
+          >
             Quiz-App
           </Typography>
           {currentAuth && (
