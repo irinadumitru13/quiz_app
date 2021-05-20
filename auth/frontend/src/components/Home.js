@@ -1,45 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
 
-import Quiz from "./Quiz";
+import QuizList from "./QuizList";
 import UserInfo from "./UserInfo";
 
-const questions = [
-  {
-    text: "Care este sensul vietii?",
-    answers: ["da", "da da da otelul e viata mea", "n-avem"],
-  },
-  {
-    text: "Care nu este sensul vietii?",
-    answers: ["da", "da da da otelul e viata mea", "n-avem"],
-  },
-  {
-    text: "Mi-l bei?",
-    answers: ["da", "da da da otelul e viata mea", "n-avem"],
-  },
-  {
-    text: "Mi-l sugi?",
-    answers: ["da", "da da da otelul e viata mea", "n-avem"],
-  },
-  {
-    text: "Care este sensul vietii?",
-    answers: ["da", "da da da otelul e viata mea", "n-avem"],
-  },
-  {
-    text: "Care nu este sensul vietii?",
-    answers: ["da", "da da da otelul e viata mea", "n-avem"],
-  },
-  {
-    text: "Mi-l bei?",
-    answers: ["da", "da da da otelul e viata mea", "n-avem"],
-  },
-  {
-    text: "Mi-l sugi?",
-    answers: ["da", "da da da otelul e viata mea", "n-avem"],
-  },
-];
+import { getQuizzes } from "../api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,6 +19,21 @@ export default function Home() {
 
   const [cookie] = useCookies(["token", "session_info"]);
 
+  const [quizzes, setQuizzes] = useState([]);
+
+  useEffect(() => {
+    async function fetchQuizzes() {
+      try {
+        let resp = await getQuizzes();
+        setQuizzes(resp);
+      } catch (e) {
+        console.log(e.message);
+      }
+    }
+
+    fetchQuizzes();
+  }, []);
+
   return (
     <div className={classes.root}>
       <Grid container spacing={2}>
@@ -59,7 +41,7 @@ export default function Home() {
           <UserInfo user={cookie.session_info} />
         </Grid>
         <Grid item xs={9}>
-          <Quiz questions={questions} />
+          <QuizList quizzes={quizzes} />
         </Grid>
       </Grid>
     </div>
