@@ -7,6 +7,7 @@ import {
   FormControl,
   Paper,
   Typography,
+  Button,
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -47,6 +48,15 @@ export default function Question({ text, answers, selection, setSelection }) {
         {text}
       </Typography>
       {generateAnswers()}
+      <Typography component="h1" variant="h5">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setSelection("")}
+        >
+          Clear
+        </Button>
+      </Typography>
     </Paper>
   );
 }

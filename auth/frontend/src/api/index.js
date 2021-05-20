@@ -1,6 +1,6 @@
 const GATEWAY = "http://localhost:8004";
-// TODO(seritandrei): change to the proper location after the docker-compose merge.
-const TMP_QUIZ_PATH = "http://localhost:3002/api";
+// TODO(seritandrei): change to the proper location after adding gateway paths.
+const TMP_QUIZ_PATH = "http://localhost:3000/api";
 
 /**
  * Attempts to login the user identified by username and password.
