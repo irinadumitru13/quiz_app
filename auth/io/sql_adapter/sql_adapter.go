@@ -73,13 +73,13 @@ func (a *Adapter) CheckCredentials(username, password string) (*UserInfo, error)
 	var userInfo UserInfo
 
 	// Fetch the user information from the database.
-	query, err := a.dbClient.Prepare(`SELECT id, password, name FROM users WHERE name=$1`)
+	query, err := a.dbClient.Prepare(`SELECT id, password, name, permission FROM users WHERE name=$1`)
 	if err != nil {
 		return nil, err
 	}
 
 	row := query.QueryRow(username)
-	err = row.Scan(&userInfo.ID, &encryptedPassword, &userInfo.Name)
+	err = row.Scan(&userInfo.ID, &encryptedPassword, &userInfo.Name, &userInfo.Permissions)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("invalid username or password")

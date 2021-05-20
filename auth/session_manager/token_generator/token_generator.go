@@ -28,10 +28,10 @@ type TokenDetails struct {
 // AccessDetails represents the information about the user provided
 // through the token.
 type AccessDetails struct {
-	Uuid           string `json:"uuid"`
-	UserId         uint64 `json:"uid"`
-	UserName       string `json:"username"`
-	UserPermission uint64 `json:"permissions"`
+	Uuid            string `json:"uuid"`
+	UserId          uint64 `json:"uid"`
+	UserName        string `json:"username"`
+	UserPermissions uint64 `json:"permissions"`
 }
 
 type TokenGenerator struct {
@@ -41,9 +41,9 @@ type TokenGenerator struct {
 }
 
 type redisEntry struct {
-	UserId         uint64
-	UserName       string
-	UserPermission uint64
+	UserId          uint64
+	UserName        string
+	UserPermissions uint64
 }
 
 func NewTokenGenerator(redisDNS string, expiration time.Duration, secret string) (*TokenGenerator, error) {
@@ -94,9 +94,9 @@ func (g *TokenGenerator) CreateSession(userId uint64, userName string, userPermi
 	now := time.Now()
 
 	re := &redisEntry{
-		UserId:         userId,
-		UserName:       userName,
-		UserPermission: userPermissions,
+		UserId:          userId,
+		UserName:        userName,
+		UserPermissions: userPermissions,
 	}
 
 	// Encode the RedisEntry as a json to store in the db.
@@ -168,10 +168,16 @@ func (g *TokenGenerator) GetAccessDetails(tokenString string) (*AccessDetails, e
 		return nil, err
 	}
 
+	userPermissions, err := strconv.ParseUint(fmt.Sprintf("%.f", claims["user_permissions"]), 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
 	return &AccessDetails{
-		Uuid:     uuid,
-		UserId:   userId,
-		UserName: username,
+		Uuid:            uuid,
+		UserId:          userId,
+		UserName:        username,
+		UserPermissions: userPermissions,
 	}, nil
 }
 
@@ -189,9 +195,10 @@ func (g *TokenGenerator) ValidateSession(ad *AccessDetails) (*AccessDetails, err
 	}
 
 	return &AccessDetails{
-		Uuid:     ad.Uuid,
-		UserId:   re.UserId,
-		UserName: re.UserName,
+		Uuid:            ad.Uuid,
+		UserId:          re.UserId,
+		UserName:        re.UserName,
+		UserPermissions: re.UserPermissions,
 	}, nil
 }
 

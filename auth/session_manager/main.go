@@ -100,6 +100,8 @@ func tokenClaimsGET(c *gin.Context) {
 	ad, err := tokenGenerator.GetAccessDetails(token)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
+		c.Abort()
+		return
 	}
 
 	c.JSON(http.StatusOK, ad)

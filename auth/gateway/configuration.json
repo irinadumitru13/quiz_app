@@ -10,9 +10,6 @@
 			"method": "GET",
 			"output_encoding": "no-op",
 			"extra_config": {},
-			"headers_to_pass": [
-				"X-Friend-User"
-			],
 			"backend": [
 				{
 					"url_pattern": "/json",

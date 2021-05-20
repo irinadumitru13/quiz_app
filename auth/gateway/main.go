@@ -66,6 +66,9 @@ func main() {
 	userIdentification := middlewares.NewIdentificationMiddleware(userClaimsURL)
 	userIdentificationMiddleware := userIdentification.Middleware()
 
+	permissionLevelValidator := middlewares.NewPermissionsMiddleware()
+	permissionLevelValidatorMiddleware := permissionLevelValidator.Middleware()
+
 	ctx := context.Background()
 	metric := metricsgin.New(ctx, serviceConfig.ExtraConfig, logger)
 
@@ -75,7 +78,7 @@ func main() {
 
 	pf := proxy.NewDefaultFactory(metric.DefaultBackendFactory(), logger)
 
-	mws := []gin.HandlerFunc{sessionValidatorMiddleware, userIdentificationMiddleware}
+	mws := []gin.HandlerFunc{sessionValidatorMiddleware, userIdentificationMiddleware, permissionLevelValidatorMiddleware}
 
 	routerFactory := krakendgin.NewFactory(krakendgin.Config{
 		Engine:         gin.Default(),

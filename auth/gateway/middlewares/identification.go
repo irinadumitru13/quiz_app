@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,9 +25,10 @@ type IdentificationMiddleware struct {
 // /odin-auth/session-manager/token-generator/token_generator.go!
 // TODO: remove once the repository is public and import it directly.
 type AccessDetails struct {
-	UUID     string `json:"uuid"`
-	UserId   uint64 `json:"uid"`
-	UserName string `json:"username"`
+	UUID            string `json:"uuid"`
+	UserId          uint64 `json:"uid"`
+	UserName        string `json:"username"`
+	UserPermissions uint64 `json:"permissions"`
 }
 
 // NewIdentificationMiddleware expects an URL to fetch user data from
@@ -89,6 +91,7 @@ func (m *IdentificationMiddleware) Middleware() gin.HandlerFunc {
 		// Add identification headers.
 		c.Request.Header.Set("User-Session-Id", ad.UUID)
 		c.Request.Header.Set("User-Name", ad.UserName)
+		c.Request.Header.Set("User-Permissions", strconv.FormatUint(ad.UserPermissions, 10))
 
 		c.Next()
 	}
