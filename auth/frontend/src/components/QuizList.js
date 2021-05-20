@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 import QuizPreview from "./QuizPreview";
 import { getQuizzes } from "../api";
 
-export default function QuizList() {
+export default function QuizList({ token }) {
   const [quizzes, setQuizzes] = useState([]);
 
   const history = useHistory();
@@ -13,7 +13,7 @@ export default function QuizList() {
   useEffect(() => {
     async function fetchQuizzes() {
       try {
-        let resp = await getQuizzes();
+        let resp = await getQuizzes(token);
         setQuizzes(resp);
       } catch (e) {
         console.log(e.message);

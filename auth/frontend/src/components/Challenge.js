@@ -24,7 +24,7 @@ export default function Challenge() {
           <UserInfo user={cookie.session_info} />
         </Grid>
         <Grid item xs={9}>
-          <Quiz />
+          <Quiz token={cookie.token} />
         </Grid>
       </Grid>
     </div>

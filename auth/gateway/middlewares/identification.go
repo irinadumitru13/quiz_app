@@ -43,6 +43,11 @@ func NewIdentificationMiddleware(getClaimsURL string) *IdentificationMiddleware 
 // Middleware generates a gin middleware handler.
 func (m *IdentificationMiddleware) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if c.Request.Method == "OPTIONS" {
+			c.Next()
+			return
+		}
+
 		// Check the request URI and see if it starts with "/auth".
 		// Any traffic going to the authentication service doesn't
 		// require user identification so we just pass it to the next handler.

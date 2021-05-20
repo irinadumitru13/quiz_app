@@ -1,6 +1,6 @@
 const GATEWAY = "http://localhost:8004";
-// TODO(seritandrei): change to the proper location after adding gateway paths.
-const TMP_QUIZ_PATH = "http://localhost:3000/api";
+
+const axios = require("axios").default;
 
 /**
  * Attempts to login the user identified by username and password.
@@ -11,22 +11,26 @@ const TMP_QUIZ_PATH = "http://localhost:3000/api";
  * NOTE: on failure, the function throws an error.
  */
 export async function login(username, password) {
-  const response = await fetch(`${GATEWAY}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  const response = await axios.post(
+    `${GATEWAY}/auth/login`,
+    JSON.stringify({
       username: username,
       password: password,
     }),
-  });
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  console.log(response);
 
   if (response.status !== 201) {
-    const errText = await response.text();
+    const errText = response.data;
     throw new Error(errText);
   } else {
-    const token = await response.text();
+    const token = response.data;
     return token;
   }
 }
@@ -39,35 +43,41 @@ export async function login(username, password) {
  * NOTE: on failure, the function throws an error.
  */
 export async function register(username, password) {
-  const response = await fetch(`${GATEWAY}/auth/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  const response = await axios.post(
+    `${GATEWAY}/auth/register`,
+    JSON.stringify({
       username: username,
       password: password,
     }),
-  });
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   if (response.status !== 201) {
-    const errText = await response.text();
+    const errText = response.data;
     throw new Error(errText);
   }
 }
 
 /**
  * Fetch the available quizzes.
+ *
+ * @param {string} token Authorization token received on login.
  */
-export async function getQuizzes() {
-  const response = await fetch(`${TMP_QUIZ_PATH}/quiz`, {
-    method: "GET",
+export async function getQuizzes(token) {
+  const response = await axios.get(`${GATEWAY}/quiz/api/quiz`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (response.status !== 200) {
     throw new Error("failed to fetch quizzes");
   } else {
-    const data = await response.json();
+    const data = response.data;
     return data.response;
   }
 }
@@ -75,17 +85,20 @@ export async function getQuizzes() {
 /**
  * Fetch quiz by id.
  *
+ * @param {string} token Authorization token received on login.
  * @param {integer} id The id of the quiz to fetch.
  */
-export async function getQuizById(id) {
-  const response = await fetch(`${TMP_QUIZ_PATH}/quiz/${id}`, {
-    method: "GET",
+export async function getQuizById(token, id) {
+  const response = await axios.get(`${GATEWAY}/quiz/api/quiz/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (response.status !== 200) {
     throw new Error("failed to fetch quizzes");
   } else {
-    const data = await response.json();
+    const data = response.data;
     return data.response;
   }
 }
@@ -93,6 +106,7 @@ export async function getQuizById(id) {
 /**
  * Attempt to create a new quiz
  *
+ * @param {string} token Authorization token received on login.
  * @param {string} name The name of the quiz.
  * @param {timestamp} start_date The date at which the quiz becomes available.
  * @param {timestamp} due_date The date at which the quiz becomes unavailable.
@@ -100,25 +114,29 @@ export async function getQuizById(id) {
  * @param {question} questions A list of questions.
  */
 export async function postQuiz(
+  token,
   name,
   start_date,
   due_date,
   allocated_time,
   questions
 ) {
-  const response = await fetch(`${TMP_QUIZ_PATH}/quiz`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  const response = await axios.post(
+    `${GATEWAY}/auth/register`,
+    JSON.stringify({
       name: name,
       start_date: start_date,
       due_date: due_date,
       allocated_time: allocated_time,
       questions: questions,
     }),
-  });
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   if (response.status !== 200) {
     throw new Error("failed to create quiz");

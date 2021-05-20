@@ -6,7 +6,7 @@ import Question from "./Question";
 import QuizSelections from "./QuizSelections";
 import { getQuizById } from "../api";
 
-export default function Quiz() {
+export default function Quiz({ token }) {
   const [selections, setSelections] = useState(undefined);
   const [quiz, setQuiz] = useState(undefined);
   let { id } = useParams();
@@ -14,7 +14,7 @@ export default function Quiz() {
   useEffect(() => {
     async function fetchQuizById(id) {
       try {
-        let resp = await getQuizById(id);
+        let resp = await getQuizById(token, id);
         setQuiz(resp);
         setSelections(new Array(resp.questions.length).fill(""));
       } catch (e) {

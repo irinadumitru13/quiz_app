@@ -10,6 +10,7 @@ services:
       - 3000:80
     networks:
       - quiz
+      - gateway-internal
 
   io-quiz-service:
     build: IOQuizMicroservice

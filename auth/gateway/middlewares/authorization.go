@@ -23,6 +23,11 @@ func NewAuthorizationMiddleware(sessionManagerURL string) *AuthorizationMiddlewa
 
 func (m *AuthorizationMiddleware) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if c.Request.Method == "OPTIONS" {
+			c.Next()
+			return
+		}
+
 		URI := c.Request.RequestURI[1:]
 		split := strings.Split(URI, "/")
 		if split[0] == "auth" {
