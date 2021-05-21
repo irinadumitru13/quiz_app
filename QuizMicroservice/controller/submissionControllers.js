@@ -28,8 +28,8 @@ Router.get('/quiz/:quiz_name', async (req, res) => {
         quiz_name
     } = req.params;
 
-    if (!quiz_name || typeof quiz_name !== 'string') {
-        throw new ServerError('quiz_name must be a path parameter - string.', 400);
+    if (!quiz_name) {
+        throw new ServerError('quiz_name must be a path parameter.', 400);
     }
 
     const response = await getSubmissionsByQuizName(quiz_name);
