@@ -146,7 +146,8 @@ Router.put('/:id', async (req, res) => {
         quiz_name,
         start_date,
         due_date,
-        allocated_time
+        allocated_time,
+        questions
     } = req.body;
 
     let {
@@ -157,6 +158,10 @@ Router.put('/:id', async (req, res) => {
 
     if (!id || id < 1) {
         throw new ServerError('Id should be a positive integer.', 400);
+    }
+
+    if (Object.keys(req.body).length === 0) {
+        throw new ServerError(`Body can't be empty.`, 400);
     }
 
     if (quiz_name && typeof quiz_name !== 'string') {
@@ -175,29 +180,68 @@ Router.put('/:id', async (req, res) => {
         throw new ServerError("allocated_time should be a positive integer", 400);
     }
 
-    let payload = {};
+    if (questions) {
+        if (questions.length === 0) {
+            throw new ServerError('questions must contain at least one element.', 400);
+        }
 
-    if (quiz_name) {
-        payload['quiz_name'] = quiz_name;
+        for (let q_element of questions) {
+            let {
+                question_id,
+                question,
+                answers
+            } = q_element;
+
+            if (question_id === undefined) {
+                throw new ServerError('No question_id provided.', 400);
+            }
+
+            if (Object.keys(q_element).length < 2) {
+                throw new ServerError('If questions to be updated, at least question_id and another field to be provided.', 400);
+            }
+
+            if (question && typeof question !== 'string') {
+                throw new ServerError('question must be a string.', 400);
+            }
+
+            if (answers) {
+                if (answers.length === 0) {
+                    throw new ServerError('answers must contain at least one element.', 400);
+                }
+
+                for (let a_element of answers) {
+                    let {
+                        answer_id,
+                        answer,
+                        is_correct,
+                        points
+                    } = a_element;
+
+                    if (answer_id === undefined) {
+                        throw new ServerError('No answer_id provided.', 400);
+                    }
+
+                    if (Object.keys(a_element).length < 2) {
+                        throw new ServerError('If answers to be updated, at least answer_id and another field to be provided.', 400);
+                    }
+
+                    if (answer && typeof answer !== 'string') {
+                        throw new ServerError('answer must be a string.', 400);
+                    }
+
+                    if (is_correct !== undefined && typeof is_correct !== 'boolean') {
+                        throw new ServerError('is_correct must be a boolean.', 400);
+                    }
+
+                    if (points !== undefined && typeof points !== 'number') {
+                        throw new ServerError('points must be an integer.', 400);
+                    }
+                }
+            }
+        }
     }
 
-    if (start_date) {
-        payload['start_date'] = start_date;
-    }
-
-    if (due_date) {
-        payload['due_date'] = due_date;
-    }
-
-    if (allocated_time !== undefined) {
-        payload['allocated_time'] = allocated_time;
-    }
-
-    if (Object.keys(payload).length === 0) {
-        throw new ServerError(`Body can't be empty.`, 400);
-    }
-
-    const response = await updateQuiz(id, payload);
+    const response = await updateQuiz(id, req.body);
 
     res.json(response);
 });

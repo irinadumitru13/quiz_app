@@ -5,6 +5,8 @@ const QuestionsRepository = require('../repository/QuestionsRepository.js');
 const AnswersRepository = require('../repository/AnswersRepository.js');
 const ServerError = require('../errors/ServerError.js');
 
+const {updateQuiz} = require('./updateEntities.js');
+
 const ResponseFilter = require('../filters/ResponseFilter.js');
 
 Router.post('/', async (req, res) => {
@@ -92,87 +94,8 @@ Router.put('/:id', async (req, res) => {
     }
 
     let req_body = req.body;
-    let result;
 
-    if (req_body.hasOwnProperty("quiz_name")) {
-        if (req_body.hasOwnProperty("start_date")) {
-            if (req_body.hasOwnProperty("due_date")) {
-                if (req_body.hasOwnProperty("allocated_time")) {
-                    result = await QuizRepository.updateAllByIdAsync(
-                        id, req_body.quiz_name, req_body.start_date, req_body.due_date, req_body.allocated_time);
-                } else {
-                    result = await QuizRepository.updateQuizNameStartDateDueDateByIdAsync(
-                        id, req_body.quiz_name, req_body.start_date, req_body.due_date);
-                }
-            } else {
-                if (req_body.hasOwnProperty("allocated_time")) {
-                    result = await QuizRepository.updateQuizNameStartDateAllocatedTimeByIdAsync(
-                        id, req_body.quiz_name, req_body.start_date, req_body.allocated_time);
-                } else {
-                    result = await QuizRepository.updateQuizNameStartDateByIdAsync(
-                        id, req_body.quiz_name, req_body.start_date);
-                }
-            }
-        } else {
-            if (req_body.hasOwnProperty("due_date")) {
-                if (req_body.hasOwnProperty("allocated_time")) {
-                    result = await QuizRepository.updateQuizNameDueDateAllocatedTimeByIdAsync(
-                        id, req_body.quiz_name, req_body.due_date, req_body.allocated_time);
-                } else {
-                    result = await QuizRepository.updateQuizNameDueDateByIdAsync(
-                        id, req_body.quiz_name, req_body.due_date);
-                }
-            } else {
-                if (req_body.hasOwnProperty("allocated_time")) {
-                    result = await QuizRepository.updateQuizNameAllocatedTimeByIdAsync(
-                        id, req_body.quiz_name, req_body.allocated_time);
-                } else {
-                    result = await QuizRepository.updateQuizNameByIdAsync(id, req_body.quiz_name);
-                }
-            }
-        }
-    } else {
-        if (req_body.hasOwnProperty("start_date")) {
-            if (req_body.hasOwnProperty("due_date")) {
-                if (req_body.hasOwnProperty("allocated_time")) {
-                    result = await QuizRepository.updateStartDateDueDateAllocatedTimeByIdAsync(
-                        id, req_body.start_date, req_body.due_date, req_body.allocated_time);
-                } else {
-                    result = await QuizRepository.updateStartDateDueDateByIdAsync(
-                        id, req_body.start_date, req_body.due_date);
-                }
-            } else {
-                if (req_body.hasOwnProperty("allocated_time")) {
-                    result = await QuizRepository.updateStartDateAllocatedTimeByIdAsync(
-                        id, req_body.start_date, req_body.allocated_time);
-                } else {
-                    result = await QuizRepository.updateStartDateByIdAsync(
-                        id, req_body.start_date);
-                }
-            }
-        } else {
-            if (req_body.hasOwnProperty("due_date")) {
-                if (req_body.hasOwnProperty("allocated_time")) {
-                    result = await QuizRepository.updateDueDateAllocatedTimeByIdAsync(
-                        id, req_body.due_date, req_body.allocated_time);
-                } else {
-                    result = await QuizRepository.updateDueDateByIdAsync(
-                        id, req_body.due_date);
-                }
-            } else {
-                if (req_body.hasOwnProperty("allocated_time")) {
-                    result = await QuizRepository.updateAllocatedTimeByIdAsync(
-                        id, req_body.allocated_time);
-                } else {
-                    throw new ServerError('Body is incorrect.', 400);
-                }
-            }
-        }
-    }
-
-    if (!result) {
-        throw new ServerError(`Quiz with id ${id} does not exist!`, 404);
-    }
+    let result = await updateQuiz(id, req_body);
 
     ResponseFilter.setResponseDetails(res, 200, result);
 });

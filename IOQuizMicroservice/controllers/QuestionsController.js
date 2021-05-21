@@ -4,6 +4,8 @@ const QuestionsRepository = require('../repository/QuestionsRepository.js');
 const AnswersRepository = require('../repository/AnswersRepository.js');
 const ServerError = require('../errors/ServerError.js');
 
+const {updateQuestion} = require('./updateEntities.js');
+
 const ResponseFilter = require('../filters/ResponseFilter.js');
 
 Router.post('/', async (req, res) => {
@@ -70,25 +72,8 @@ Router.put('/:id', async (req, res) => {
     }
 
     let req_body = req.body;
-    let result;
 
-    if (req_body.hasOwnProperty("quiz_id")) {
-        if (req_body.hasOwnProperty("question")) {
-            result = await QuestionsRepository.updateAllByIdAsync(id, req_body.quiz_id, req_body.question);
-        } else {
-            result = await QuestionsRepository.updateQuizIdByIdAsync(id, req_body.quiz_id);
-        }
-    } else {
-        if (req_body.hasOwnProperty("question")) {
-            result = await QuestionsRepository.updateQuestionByIdAsync(id, req_body.question);
-        } else {
-            throw new ServerError("Body is incorrect.", 400);
-        }
-    }
-
-    if (!result) {
-        throw new ServerError(`Question with id ${id} does not exist!`, 404);
-    }
+    let result = await updateQuestion(id, req_body);
 
     ResponseFilter.setResponseDetails(res, 200, result);
 });

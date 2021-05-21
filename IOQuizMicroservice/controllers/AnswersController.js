@@ -3,6 +3,8 @@ const Router = require('express').Router();
 const AnswersRepository = require('../repository/AnswersRepository.js');
 const ServerError = require('../errors/ServerError.js');
 
+const {updateAnswer} = require('./updateEntities.js');
+
 const ResponseFilter = require('../filters/ResponseFilter.js');
 
 Router.post('/', async (req, res) => {
@@ -58,69 +60,8 @@ Router.put('/:id', async (req, res) => {
     }
 
     let req_body = req.body;
-    let result;
 
-    if (req_body.hasOwnProperty("question_id")) {
-        if (req_body.hasOwnProperty("answer")) {
-            if (req_body.hasOwnProperty("is_correct")) {
-                if (req_body.hasOwnProperty("points")) {
-                    result = await AnswersRepository.updateAllByIdAsync(id, req_body.question_id, req_body.answer, req_body.is_correct, req_body.points);
-                } else {
-                    result = await AnswersRepository.updateQuestionIdAnswerIsCorrectByIdAsync(id, req_body.question_id, req_body.answer, req_body.is_correct);
-                }
-            } else {
-                if (req_body.hasOwnProperty("points")) {
-                    result = await AnswersRepository.updateQuestionIdAnswerPointsByIdAsync(id, req_body.question_id, req_body.answer, req_body.points);
-                } else {
-                    result = await AnswersRepository.updateQuestionIdAnswerByIdAsync(id, req_body.question_id, req_body.answer);
-                }
-            }
-        } else {
-            if (req_body.hasOwnProperty("is_correct")) {
-                if (req_body.hasOwnProperty("points")) {
-                    result = await AnswersRepository.updateQuestionIdIsCorrectPointsByIdAsync(id, req_body.question_id, req_body.is_correct, req_body.points);
-                } else {
-                    result = await AnswersRepository.updateQuestionIdIsCorrectByIdAsync(id, req_body.question_id, req_body.is_correct);
-                }
-            } else {
-                if (req_body.hasOwnProperty("points")) {
-                    result = await AnswersRepository.updateQuestionIdPointsByIdAsync(id, req_body.question_id, req_body.points);
-                } else {
-                    result = await AnswersRepository.updateQuestionIdByIdAsync(id, req_body.question_id);
-                }
-            }
-        }
-    } else {
-        if (req_body.hasOwnProperty("answer")) {
-            if (req_body.hasOwnProperty("is_correct")) {
-                if (req_body.hasOwnProperty("points")) {
-                    result = await AnswersRepository.updateAnswerIsCorrectPointsByIdAsync(id, req_body.answer, req_body.is_correct, req_body.points);
-                } else {
-                    result = await AnswersRepository.updateAnswerIsCorrectByIdAsync(id, req_body.answer, req_body.is_correct);
-                }
-            } else {
-                if (req_body.hasOwnProperty("points")) {
-                    result = await AnswersRepository.updateAnswerPointsByIdAsync(id, req_body.answer, req_body.points);
-                } else {
-                    result = await AnswersRepository.updateAnswerByIdAsync(id, req_body.answer);
-                }
-            }
-        } else {
-            if (req_body.hasOwnProperty("is_correct")) {
-                if (req_body.hasOwnProperty("points")) {
-                    result = await AnswersRepository.updateIsCorrectPointsByIdAsync(id, req_body.is_correct, req_body.points);
-                } else {
-                    result = await AnswersRepository.updateIsCorrectByIdAsync(id, req_body.is_correct);
-                }
-            } else {
-                if (req_body.hasOwnProperty("points")) {
-                    result = await AnswersRepository.updatePointsByIdAsync(id, req_body.points);
-                } else {
-                    throw new ServerError("Body is incorrect.", 400);
-                }
-            }
-        }
-    }
+    let result = await updateAnswer(id, req_body);
 
     if (!result) {
         throw new ServerError(`Answer with id ${id} does not exist!`, 404);
