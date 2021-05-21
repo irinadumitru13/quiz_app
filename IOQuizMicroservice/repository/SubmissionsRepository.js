@@ -26,9 +26,9 @@ const getByUsernameAsync = async (username) => {
 };
 
 const deleteByIdAsync = async (id) => {
-    console.info(`Deleting the submission with id ${id} from database async...`);
+    console.info(`Deleting the submission with submission_id ${id} from database async...`);
 
-    const quiz = await queryAsync('DELETE FROM SUBMISSIONS WHERE id = $1 RETURNING *', [id]);
+    const quiz = await queryAsync('DELETE FROM SUBMISSIONS WHERE submission_id = $1 RETURNING *', [id]);
 
     return quiz[0];
 };

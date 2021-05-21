@@ -7,7 +7,7 @@ const createError = require("http-errors");
 require("express-async-errors");
 require("log-timestamp");
 
-const routes = require("./controllers.js");
+const routes = require('./routes.js');
 
 const { ServerError } = require("./errors");
 

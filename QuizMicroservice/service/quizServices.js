@@ -1,6 +1,6 @@
 const {
     sendRequest
-} = require('./http-client');
+} = require('../http-client');
 
 const getQuizzes = async () => {
     console.info(`Sending request to IO for all quizzes...`);
@@ -60,8 +60,33 @@ const addQuiz = async (quiz_name, start_date, due_date, allocated_time, question
     return await sendRequest(options);
 }
 
+const updateQuiz = async (id, payload) => {
+    console.info(`Sending request to IO to update the quiz with id ${id}...`);
+
+    const options = {
+        url: `http://${process.env.IO_SERVICE_API_ROUTE}/quiz/${id}`,
+        method: 'PUT',
+        data: payload
+    }
+
+    return await sendRequest(options);
+}
+
+const deleteQuiz = async (id) => {
+    console.info(`Sending request to IO to delete the quiz with id ${id}...`);
+
+    const options = {
+        url: `http://${process.env.IO_SERVICE_API_ROUTE}/quiz/${id}`,
+        method: 'DELETE'
+    }
+
+    return await sendRequest(options);
+};
+
 module.exports = {
     getQuizzes,
     getQuizById,
     addQuiz,
+    updateQuiz,
+    deleteQuiz
 }
