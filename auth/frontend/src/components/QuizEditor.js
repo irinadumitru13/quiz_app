@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Grid } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { Grid, Button, TextField, Paper } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 
 import QuestionEditor from "./QuestionEditor";
 import { getQuizById } from "../api";
 
-export default function QuizEditor({ token, user }) {
+const useStyles = makeStyles((theme) => ({
+  padded: {
+    padding: theme.spacing(4),
+  },
+}));
+
+export default function QuizEditor({ token }) {
+  const classes = useStyles();
   const [quiz, setQuiz] = useState(undefined);
   let { id } = useParams();
 
@@ -19,7 +27,8 @@ export default function QuizEditor({ token, user }) {
       }
     }
 
-    fetchQuizById(id);
+    if (id !== undefined) fetchQuizById(id);
+    setQuiz({ quiz_name: "", questions: [] });
   }, [id, token]);
 
   const onQuestionChange = (questionId) => (question) => {
@@ -62,6 +71,18 @@ export default function QuizEditor({ token, user }) {
     setQuiz(newQuiz);
   };
 
+  const onQuestionAdd = () => {
+    let newQuiz = { ...quiz };
+    newQuiz.questions.push({ question: "", answers: [] });
+    setQuiz(newQuiz);
+  };
+
+  const onTitleChange = (title) => {
+    let newQuiz = { ...quiz };
+    newQuiz.quiz_name = title;
+    setQuiz(newQuiz);
+  };
+
   const generateQuestions = () => {
     if (quiz === undefined) {
       return <div>Loading...</div>;
@@ -88,5 +109,31 @@ export default function QuizEditor({ token, user }) {
     );
   };
 
-  return <div>{generateQuestions()}</div>;
+  if (quiz === undefined) {
+    return <div>Loading...</div>;
+  }
+
+  console.log(quiz);
+
+  return (
+    <Grid container spacing={2} direction="column">
+      <Grid item>
+        <Paper elevation={2} className={classes.padded}>
+          <TextField
+            label="Quiz title"
+            variant="outlined"
+            defaultValue={quiz.quiz_name}
+            onChange={(e) => onTitleChange(e.target.value)}
+            fullWidth
+          />
+        </Paper>
+      </Grid>
+      <Grid item>{generateQuestions()}</Grid>
+      <Grid item>
+        <Button variant="contained" color="primary" onClick={onQuestionAdd}>
+          add question
+        </Button>
+      </Grid>
+    </Grid>
+  );
 }

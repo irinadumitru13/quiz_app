@@ -7,7 +7,6 @@ import {
   Divider,
   Button,
   Checkbox,
-  FormControlLabel,
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
