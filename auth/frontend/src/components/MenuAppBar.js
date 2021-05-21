@@ -53,9 +53,10 @@ export default function MenuAppBar({ auth }) {
   };
 
   const handleLogout = () => {
-    removeCookie("token");
-    removeCookie("session_info");
+    removeCookie("token", { path: "/" });
+    removeCookie("session_info", { path: "/" });
     handleClose();
+    history.push("/");
   };
 
   return (

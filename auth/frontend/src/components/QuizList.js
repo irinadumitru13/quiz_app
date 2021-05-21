@@ -21,7 +21,7 @@ export default function QuizList({ token }) {
     }
 
     fetchQuizzes();
-  }, []);
+  }, [token]);
 
   const handleClick = (id) => {
     history.push(`/quiz/${id}`);
