@@ -48,10 +48,16 @@ export default function App() {
           />
           <PrivateRoute
             path="/edit/:id"
+            permissionLevel={5}
             token={cookie.token}
             component={Editor}
           />
-          <PrivateRoute path="/new" token={cookie.token} component={Editor} />
+          <PrivateRoute
+            path="/new"
+            permissionLevel={5}
+            token={cookie.token}
+            component={Editor}
+          />
           <PrivateRoute path="/" token={cookie.token} component={Home} />
         </Switch>
       </Router>
