@@ -24,7 +24,7 @@ export default function Home() {
           <UserInfo user={cookie.session_info} />
         </Grid>
         <Grid item xs={9}>
-          <QuizList token={cookie.token} />
+          <QuizList token={cookie.token} user={cookie.session_info} />
         </Grid>
       </Grid>
     </div>

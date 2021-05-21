@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Grid, Paper, TextField, Divider, Button } from "@material-ui/core";
+import {
+  Grid,
+  Paper,
+  TextField,
+  Divider,
+  Button,
+  Checkbox,
+  FormControlLabel,
+} from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
@@ -14,6 +22,7 @@ export default function QuestionEditor({
   setText,
   setAnswers,
   removeAnswer,
+  flipAnswerType,
   addAnswer,
 }) {
   const classes = useStyles();
@@ -36,6 +45,10 @@ export default function QuestionEditor({
 
   const onAnswerRemove = (id) => () => {
     removeAnswer(id);
+  };
+
+  const onAnswerType = (id) => () => {
+    flipAnswerType(id, !answers[id].is_correct);
   };
 
   const onQuestionChange = (e) => {
@@ -65,7 +78,14 @@ export default function QuestionEditor({
                 fullWidth
               />
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={1}>
+              <Checkbox
+                name="SomeName"
+                checked={answer.is_correct}
+                onClick={onAnswerType(idx)}
+              />
+            </Grid>
+            <Grid item xs={1}>
               <Button
                 variant="contained"
                 color="secondary"

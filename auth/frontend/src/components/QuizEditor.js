@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import QuestionEditor from "./QuestionEditor";
 import { getQuizById } from "../api";
 
-export default function QuizEditor({ token }) {
+export default function QuizEditor({ token, user }) {
   const [quiz, setQuiz] = useState(undefined);
   let { id } = useParams();
 
@@ -43,7 +43,22 @@ export default function QuizEditor({ token }) {
 
   const onAnswerAdd = (questionId) => () => {
     let newQuiz = { ...quiz };
-    newQuiz.questions[questionId].answers.push({ answer: "" });
+    newQuiz.questions[questionId].answers.push({
+      answer: "",
+      is_correct: false,
+      points: 0,
+    });
+    setQuiz(newQuiz);
+  };
+
+  const onAnswerFlip = (questionId) => (answerId, type) => {
+    let newQuiz = { ...quiz };
+    if (type) {
+      newQuiz.questions[questionId].answers.forEach((answer) => {
+        answer.is_correct = false;
+      });
+    }
+    newQuiz.questions[questionId].answers[answerId].is_correct = type;
     setQuiz(newQuiz);
   };
 
@@ -64,6 +79,7 @@ export default function QuizEditor({ token }) {
                 setAnswers={onAnswerChange(idx)}
                 removeAnswer={onAnswerRemove(idx)}
                 addAnswer={onAnswerAdd(idx)}
+                flipAnswerType={onAnswerFlip(idx)}
               />
             </Grid>
           );

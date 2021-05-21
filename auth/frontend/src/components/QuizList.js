@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 import QuizPreview from "./QuizPreview";
 import { getQuizzes } from "../api";
 
-export default function QuizList({ token }) {
+export default function QuizList({ token, user }) {
   const [quizzes, setQuizzes] = useState([]);
 
   const history = useHistory();
@@ -30,10 +30,10 @@ export default function QuizList({ token }) {
   const generateGridItems = () => {
     return quizzes.map((quiz, idx) => {
       return (
-        <Grid key={idx} item xs={2}>
+        <Grid key={idx} item xs={3}>
           <QuizPreview
-            quizTitle={quiz.quiz_name}
-            status={quiz.status}
+            quiz={quiz}
+            canEdit={user.user_permissions >= 5}
             onClick={() => {
               handleClick(quiz.quiz_id);
             }}
