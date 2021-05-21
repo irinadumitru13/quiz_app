@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, Button, TextField, Paper } from "@material-ui/core";
 import { useParams } from "react-router-dom";
+import { useAlert } from "react-alert";
 
 import QuestionEditor from "./QuestionEditor";
-import { getQuizById } from "../api";
+import DateTimePicker from "./DateTimePicker";
+import { getQuizById, postQuiz } from "../api";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
@@ -15,7 +17,10 @@ const useStyles = makeStyles((theme) => ({
 export default function QuizEditor({ token }) {
   const classes = useStyles();
   const [quiz, setQuiz] = useState(undefined);
+  const [refresh, setRefresh] = useState(true);
+
   let { id } = useParams();
+  const alert = useAlert();
 
   useEffect(() => {
     async function fetchQuizById(id) {
@@ -23,12 +28,22 @@ export default function QuizEditor({ token }) {
         let resp = await getQuizById(token, id);
         setQuiz(resp);
       } catch (e) {
-        console.log(e.message);
+        alert.show(e.message);
       }
     }
 
-    if (id !== undefined) fetchQuizById(id);
-    setQuiz({ quiz_name: "", questions: [] });
+    if (id !== undefined) {
+      fetchQuizById(id);
+    } else {
+      let now = new Date();
+      setQuiz({
+        quiz_name: "",
+        questions: [],
+        start_date: now.toISOString(),
+        due_date: now.toISOString(),
+        allocated_time: 1,
+      });
+    }
   }, [id, token]);
 
   const onQuestionChange = (questionId) => (question) => {
@@ -40,7 +55,13 @@ export default function QuizEditor({ token }) {
 
   const onAnswerChange = (questionId) => (answerId, answer) => {
     let newQuiz = { ...quiz };
-    newQuiz.questions[questionId].answers[answerId] = answer;
+    newQuiz.questions[questionId].answers[answerId].answer = answer;
+    setQuiz(newQuiz);
+  };
+
+  const onPointsChange = (questionId) => (answerId, points) => {
+    let newQuiz = { ...quiz };
+    newQuiz.questions[questionId].answers[answerId].points = points;
     setQuiz(newQuiz);
   };
 
@@ -48,6 +69,7 @@ export default function QuizEditor({ token }) {
     let newQuiz = { ...quiz };
     newQuiz.questions[questionId].answers.splice(answerId, 1);
     setQuiz(newQuiz);
+    setRefresh(!refresh);
   };
 
   const onAnswerAdd = (questionId) => () => {
@@ -58,6 +80,7 @@ export default function QuizEditor({ token }) {
       points: 0,
     });
     setQuiz(newQuiz);
+    setRefresh(!refresh);
   };
 
   const onAnswerFlip = (questionId) => (answerId, type) => {
@@ -69,18 +92,58 @@ export default function QuizEditor({ token }) {
     }
     newQuiz.questions[questionId].answers[answerId].is_correct = type;
     setQuiz(newQuiz);
+    setRefresh(!refresh);
   };
 
   const onQuestionAdd = () => {
     let newQuiz = { ...quiz };
     newQuiz.questions.push({ question: "", answers: [] });
     setQuiz(newQuiz);
+    setRefresh(!refresh);
+  };
+
+  const onQuestionRemove = (questionId) => () => {
+    let newQuiz = { ...quiz };
+    newQuiz.questions.splice(questionId, 1);
+    console.log(newQuiz.questions);
+    setQuiz(newQuiz);
+    setRefresh(!refresh);
   };
 
   const onTitleChange = (title) => {
     let newQuiz = { ...quiz };
     newQuiz.quiz_name = title;
     setQuiz(newQuiz);
+    setRefresh(!refresh);
+  };
+
+  const onStartDateChange = (date) => {
+    let newQuiz = { ...quiz };
+    newQuiz.start_date = date;
+    setQuiz(newQuiz);
+  };
+
+  const onDueDateChange = (date) => {
+    let newQuiz = { ...quiz };
+    newQuiz.due_date = date;
+    setQuiz(newQuiz);
+  };
+
+  const createQuiz = async () => {
+    let start = new Date(quiz.start_date).getTime();
+    let due = new Date(quiz.due_date).getTime();
+
+    if (start >= due) {
+      alert.show("start date must be before due date");
+      return;
+    }
+
+    try {
+      await postQuiz(token, quiz);
+      alert.show("Quiz created!");
+    } catch (e) {
+      alert.show(e.message);
+    }
   };
 
   const generateQuestions = () => {
@@ -92,15 +155,17 @@ export default function QuizEditor({ token }) {
       <Grid container spacing={2} direction="column">
         {quiz.questions.map((question, idx) => {
           return (
-            <Grid key={idx} item>
+            <Grid key={`${idx} ${refresh}`} item>
               <QuestionEditor
                 text={question.question}
                 answers={question.answers}
                 setText={onQuestionChange(idx)}
                 setAnswers={onAnswerChange(idx)}
+                setPoints={onPointsChange(idx)}
                 removeAnswer={onAnswerRemove(idx)}
-                addAnswer={onAnswerAdd(idx)}
                 flipAnswerType={onAnswerFlip(idx)}
+                addAnswer={onAnswerAdd(idx)}
+                removeQuestion={onQuestionRemove(idx)}
               />
             </Grid>
           );
@@ -112,8 +177,6 @@ export default function QuizEditor({ token }) {
   if (quiz === undefined) {
     return <div>Loading...</div>;
   }
-
-  console.log(quiz);
 
   return (
     <Grid container spacing={2} direction="column">
@@ -128,11 +191,34 @@ export default function QuizEditor({ token }) {
           />
         </Paper>
       </Grid>
+      <Grid item>
+        <DateTimePicker
+          label="Start"
+          date={quiz.start_date}
+          setDate={onStartDateChange}
+        />
+      </Grid>
+      <Grid item>
+        <DateTimePicker
+          label="Due"
+          date={quiz.due_date}
+          setDate={onDueDateChange}
+        />
+      </Grid>
       <Grid item>{generateQuestions()}</Grid>
       <Grid item>
-        <Button variant="contained" color="primary" onClick={onQuestionAdd}>
-          add question
-        </Button>
+        <Grid container justify="space-between">
+          <Grid item>
+            <Button variant="contained" color="primary" onClick={onQuestionAdd}>
+              add question
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="default" onClick={createQuiz}>
+              submit
+            </Button>
+          </Grid>
+        </Grid>
       </Grid>
     </Grid>
   );

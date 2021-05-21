@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Grid } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 
 import QuizPreview from "./QuizPreview";
 import { getQuizzes } from "../api";
 
+const useStyles = makeStyles((theme) => ({
+  padded: {
+    paddingRight: theme.spacing(4),
+  },
+}));
+
 export default function QuizList({ token, user }) {
+  const classes = useStyles();
   const [quizzes, setQuizzes] = useState([]);
 
   const history = useHistory();
@@ -44,7 +52,7 @@ export default function QuizList({ token, user }) {
   };
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} className={classes.padded}>
       {generateGridItems()}
     </Grid>
   );

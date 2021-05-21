@@ -20,13 +20,16 @@ export default function QuestionEditor({
   answers,
   setText,
   setAnswers,
+  setPoints,
   removeAnswer,
   flipAnswerType,
   addAnswer,
+  removeQuestion,
 }) {
   const classes = useStyles();
 
   const [currentAnswers, setCurrentAnswers] = useState(answers);
+  const [refresh, setRefresh] = useState(true);
 
   const previousValueRef = useRef();
   const previousValue = previousValueRef.current;
@@ -42,8 +45,13 @@ export default function QuestionEditor({
     setAnswers(id, e.target.value);
   };
 
+  const onPointsChange = (id) => (e) => {
+    setPoints(id, parseInt(e.target.value));
+  };
+
   const onAnswerRemove = (id) => () => {
     removeAnswer(id);
+    setRefresh(!refresh);
   };
 
   const onAnswerType = (id) => () => {
@@ -57,7 +65,7 @@ export default function QuestionEditor({
   const generateAnswers = () => {
     return currentAnswers.map((answer, idx) => {
       return (
-        <Grid key={idx} item className={classes.spread}>
+        <Grid key={`${idx} ${refresh}`} item className={classes.spread}>
           <Grid container spacing={2} justify="center" alignItems="center">
             <Grid item xs={8}>
               <TextField
@@ -73,7 +81,7 @@ export default function QuestionEditor({
                 label={`Points ${idx + 1}`}
                 variant="outlined"
                 defaultValue={answer.points}
-                onChange={onAnswerChange(idx)}
+                onChange={onPointsChange(idx)}
                 fullWidth
               />
             </Grid>
@@ -104,13 +112,31 @@ export default function QuestionEditor({
     <Paper elevation={2} className={classes.padded}>
       <Grid container spacing={2} direction="column">
         <Grid item>
-          <TextField
-            label="Question"
-            variant="outlined"
-            defaultValue={text}
-            onChange={onQuestionChange}
-            fullWidth
-          />
+          <Grid
+            container
+            spacing={2}
+            justify="space-between"
+            alignItems="center"
+          >
+            <Grid item xs={9}>
+              <TextField
+                label="Question"
+                variant="outlined"
+                defaultValue={text}
+                onChange={onQuestionChange}
+                fullWidth
+              />
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={removeQuestion}
+              >
+                remove
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
         <Divider />
         {generateAnswers()}
