@@ -81,7 +81,7 @@ export default function Login({ setToken }) {
       const token = await login(username, password);
       setIsLoading(false);
       setToken(token);
-      history.push("/home");
+      history.push("/");
     } catch (e) {
       setIsLoading(false);
       setPassword("");
