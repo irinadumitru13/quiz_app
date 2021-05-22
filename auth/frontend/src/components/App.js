@@ -55,7 +55,7 @@ export default function App() {
           />
           <PrivateRoute
             path="/new"
-            permissionLevel={5}
+            permissionLevel={10}
             token={cookie.token}
             component={Editor}
           />

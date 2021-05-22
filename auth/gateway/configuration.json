@@ -128,7 +128,7 @@
 			]
 		},
 		{
-			"endpoint": "/mentainer/quiz/api/quiz",
+			"endpoint": "/admin/quiz/api/quiz",
 			"method": "POST",
 			"output_encoding": "no-op",
 			"extra_config": {},

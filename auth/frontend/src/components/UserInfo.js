@@ -26,6 +26,18 @@ export default function UserInfo({ user }) {
         variant="contained"
         color="primary"
         className={classes.topMargin}
+        disabled={window.location.pathname === "/"}
+        onClick={() => {
+          history.push("/");
+        }}
+      >
+        home
+      </Button>
+      <Button
+        fullWidth
+        variant="contained"
+        color="primary"
+        className={classes.topMargin}
         disabled={window.location.pathname === "/submissions"}
         onClick={() => {
           history.push("/submissions");
@@ -33,6 +45,20 @@ export default function UserInfo({ user }) {
       >
         my submissions
       </Button>
+      {user.user_permissions >= 10 && (
+        <Button
+          fullWidth
+          variant="contained"
+          color="primary"
+          className={classes.topMargin}
+          disabled={window.location.pathname === "/new"}
+          onClick={() => {
+            history.push("/new");
+          }}
+        >
+          add quiz
+        </Button>
+      )}
     </Paper>
   );
 }

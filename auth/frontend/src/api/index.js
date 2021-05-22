@@ -1,5 +1,6 @@
 const GATEWAY = "http://localhost:8004";
 const GATEWAY_MENTAINER = GATEWAY + "/mentainer";
+const GATEWAY_ADMIN = GATEWAY + "/admin";
 
 const axios = require("axios").default;
 
@@ -188,7 +189,7 @@ export async function postQuiz(token, quiz) {
 export async function putQuiz(token, quiz) {
   try {
     const response = await axios.put(
-      `${GATEWAY_MENTAINER}/quiz/api/quiz/${quiz.quiz_id}`,
+      `${GATEWAY_ADMIN}/quiz/api/quiz/${quiz.quiz_id}`,
       JSON.stringify({
         quiz_name: quiz.quiz_name,
         start_date: quiz.start_date.replace("T", " ").slice(0, -5),
