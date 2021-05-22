@@ -189,7 +189,7 @@ export async function postQuiz(token, quiz) {
 export async function putQuiz(token, quiz) {
   try {
     const response = await axios.put(
-      `${GATEWAY_ADMIN}/quiz/api/quiz/${quiz.quiz_id}`,
+      `${GATEWAY_MENTAINER}/quiz/api/quiz/${quiz.quiz_id}`,
       JSON.stringify({
         quiz_name: quiz.quiz_name,
         start_date: quiz.start_date.replace("T", " ").slice(0, -5),

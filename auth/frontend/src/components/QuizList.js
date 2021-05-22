@@ -14,7 +14,8 @@ const useStyles = makeStyles((theme) => ({
 
 const priority = {
   open: 3,
-  ended: 2,
+  ended: 1,
+  "in the future": 2,
 };
 
 export default function QuizList({ token, user }) {

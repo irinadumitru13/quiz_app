@@ -67,7 +67,7 @@ export default function App() {
           />
           <PrivateRoute
             path="/submissions"
-            permissionLevel={5}
+            permissionLevel={0}
             token={cookie.token}
             component={Submissions}
           />

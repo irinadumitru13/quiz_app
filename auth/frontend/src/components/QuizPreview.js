@@ -31,11 +31,6 @@ const useStyles = makeStyles((theme) => ({
     margin: "0 2px",
     transform: "scale(1.5)",
   },
-  spread: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
   editButton: {
     borderRadius: theme.spacing(4),
     "&:hover": {
@@ -67,8 +62,7 @@ export default function QuizPreview({ quiz, canEdit, onQuizClick }) {
 
   return (
     <Paper className={classes.padded} onClick={handleClick}>
-      <Typography noWrap component="h1" variant="h6" className={classes.spread}>
-        {quiz.quiz_name}
+      <Typography noWrap component="h1" variant="h6">
         {canEdit && quiz.status !== "ended" && (
           <IconButton
             className={classes.editButton}
@@ -82,6 +76,7 @@ export default function QuizPreview({ quiz, canEdit, onQuizClick }) {
             <EditIcon />
           </IconButton>
         )}
+        {quiz.quiz_name}
       </Typography>
       <Typography>
         <span className={statusClass}>{bull}</span>
