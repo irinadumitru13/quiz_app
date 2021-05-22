@@ -21,10 +21,16 @@ Router.post('/', async (req, res) => {
 
     const result = await QuestionsRepository.addAsync(quiz_id, question);
 
+    if (answers) {
+        result.answers = [];
+    }
+
     for (let answer of answers) {
         if (!answer.hasOwnProperty("answer") || !answer.hasOwnProperty("is_correct") || !answer.hasOwnProperty("points"))
             throw new ServerError("Body is incorrect.", 400);
-        await AnswersRepository.addAsync(result.question_id, answer.answer, answer.is_correct, answer.points);
+        const a_result = await AnswersRepository.addAsync(result.question_id, answer.answer, answer.is_correct, answer.points);
+
+        result.answers.push(a_result);
     }
 
     ResponseFilter.setResponseDetails(res, 201, result, req.originalUrl);

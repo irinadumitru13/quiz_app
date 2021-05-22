@@ -22,7 +22,7 @@ Router.post('/', async (req, res) => {
 
     const result = await AnswersRepository.addAsync(question_id, answer, is_correct, points);
 
-    ResponseFilter.setResponseDetails(res, 201, result, req.originalUrl);
+    ResponseFilter.setResponseDetails(res, 201, result.answer_id, req.originalUrl);
 });
 
 // this might not be necessary
