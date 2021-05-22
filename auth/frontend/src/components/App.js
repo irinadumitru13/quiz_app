@@ -65,6 +65,12 @@ export default function App() {
             token={cookie.token}
             component={Submissions}
           />
+          <PrivateRoute
+            path="/submissions"
+            permissionLevel={5}
+            token={cookie.token}
+            component={Submissions}
+          />
           <PrivateRoute path="/" token={cookie.token} component={Home} />
         </Switch>
       </Router>

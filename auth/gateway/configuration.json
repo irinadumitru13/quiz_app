@@ -282,6 +282,28 @@
 			]
 		},
 		{
+			"endpoint": "/quiz/api/submission",
+			"method": "GET",
+			"output_encoding": "no-op",
+			"extra_config": {},
+			"backend": [
+				{
+					"url_pattern": "/api/submission",
+					"encoding": "no-op",
+					"sd": "static",
+					"method": "GET",
+					"extra_config": {},
+					"host": [
+						"http://quiz-service:80"
+					],
+					"disable_host_sanitize": true
+				}
+			],
+			"headers_to_pass": [
+				"*"
+			]
+		},
+		{
 			"endpoint": "/mentainer/quiz/api/submission/quiz/{id}",
 			"method": "GET",
 			"output_encoding": "no-op",

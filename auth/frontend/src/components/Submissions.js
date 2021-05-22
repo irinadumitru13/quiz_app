@@ -7,7 +7,7 @@ import { Grid } from "@material-ui/core";
 
 import UserInfo from "./UserInfo";
 import SubmissionList from "./SubmissionList";
-import { getQuizStatistics } from "../api";
+import { getQuizSubmissions, getSubmissions } from "../api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,7 +27,19 @@ export default function Submissions() {
   useEffect(() => {
     async function fetchSubmissionsByName() {
       try {
-        const resp = await getQuizStatistics(cookie.token, decodeURI(quizName));
+        const resp = await getQuizSubmissions(
+          cookie.token,
+          decodeURI(quizName)
+        );
+        setSubmissions(resp);
+      } catch (e) {
+        alert.show(e.message);
+      }
+    }
+
+    async function fetchSubmissions() {
+      try {
+        const resp = await getSubmissions(cookie.token);
         setSubmissions(resp);
       } catch (e) {
         alert.show(e.message);
@@ -36,8 +48,10 @@ export default function Submissions() {
 
     if (quizName !== undefined) {
       fetchSubmissionsByName();
+    } else {
+      fetchSubmissions();
     }
-  }, [alert]);
+  }, [alert, cookie.token, quizName]);
 
   return (
     <div className={classes.root}>

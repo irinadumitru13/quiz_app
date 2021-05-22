@@ -23,8 +23,6 @@ export default function SubmissionPreview({ submission }) {
   const classes = useStyles();
   const bull = <span className={classes.bullet}>•</span>;
 
-  console.log(submission);
-
   return (
     <Paper elevation={2} className={classes.padded}>
       <Typography noWrap component="h1" variant="h6">

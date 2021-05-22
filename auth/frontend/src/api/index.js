@@ -367,12 +367,12 @@ export async function submitQuiz(token, quizName, score) {
 }
 
 /**
- * Fetch statistics quiz by name as mentainer.
+ * Fetch quiz submissions by name as mentainer.
  *
  * @param {string} token Authorization token received on login.
- * @param {string} name The name of the quiz to fetch statistics for.
+ * @param {string} name The name of the quiz to fetch submissions for.
  */
-export async function getQuizStatistics(token, name) {
+export async function getQuizSubmissions(token, name) {
   try {
     const response = await axios.get(
       `${GATEWAY_MENTAINER}/quiz/api/submission/quiz/${encodeURI(name)}`,
@@ -382,6 +382,30 @@ export async function getQuizStatistics(token, name) {
         },
       }
     );
+
+    if (response.status !== 200) {
+      throw new Error("failed to fetch submissions");
+    } else {
+      const data = response.data;
+      return data.response;
+    }
+  } catch (e) {
+    throw new Error("failed to fetch submissions");
+  }
+}
+
+/**
+ * Fetch user submissions.
+ *
+ * @param {string} token Authorization token received on login.
+ */
+export async function getSubmissions(token) {
+  try {
+    const response = await axios.get(`${GATEWAY}/quiz/api/submission`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (response.status !== 200) {
       throw new Error("failed to fetch submissions");
