@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
-    padding: theme.spacing(4),
+    padding: theme.spacing(3),
     transitionDuration: "0.3s",
     transitionProperty: "transform",
     "&:hover": {
