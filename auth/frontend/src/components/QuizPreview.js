@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { IconButton, Typography, Paper } from "@material-ui/core";
+import { IconButton, Typography, Paper, Button } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router-dom";
 
@@ -13,6 +13,9 @@ const useStyles = makeStyles((theme) => ({
       transform: "scale(1.05)",
       cursor: "pointer",
     },
+  },
+  marginTop: {
+    marginTop: theme.spacing(1),
   },
   statusOpen: {
     color: "green",
@@ -85,6 +88,20 @@ export default function QuizPreview({ quiz, canEdit, onQuizClick }) {
         {" Status: "}
         <span className={statusClass}>{quiz.status}</span>
       </Typography>
+      {canEdit && (
+        <Button
+          className={classes.marginTop}
+          fullWidth
+          variant="contained"
+          color="primary"
+          onClick={(e) => {
+            e.stopPropagation();
+            history.push(`/submissions/${quiz.quiz_id}`);
+          }}
+        >
+          view submissions
+        </Button>
+      )}
     </Paper>
   );
 }
