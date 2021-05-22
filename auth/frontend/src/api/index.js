@@ -11,27 +11,29 @@ const axios = require("axios").default;
  * NOTE: on failure, the function throws an error.
  */
 export async function login(username, password) {
-  const response = await axios.post(
-    `${GATEWAY}/auth/login`,
-    JSON.stringify({
-      username: username,
-      password: password,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
+  try {
+    const response = await axios.post(
+      `${GATEWAY}/auth/login`,
+      JSON.stringify({
+        username: username,
+        password: password,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status !== 201) {
+      const errText = response.data;
+      throw new Error(errText);
+    } else {
+      const token = response.data;
+      return token;
     }
-  );
-
-  console.log(response);
-
-  if (response.status !== 201) {
-    const errText = response.data;
-    throw new Error(errText);
-  } else {
-    const token = response.data;
-    return token;
+  } catch (e) {
+    throw new Error(e.response.data);
   }
 }
 
@@ -43,22 +45,26 @@ export async function login(username, password) {
  * NOTE: on failure, the function throws an error.
  */
 export async function register(username, password) {
-  const response = await axios.post(
-    `${GATEWAY}/auth/register`,
-    JSON.stringify({
-      username: username,
-      password: password,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  try {
+    const response = await axios.post(
+      `${GATEWAY}/auth/register`,
+      JSON.stringify({
+        username: username,
+        password: password,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-  if (response.status !== 201) {
-    const errText = response.data;
-    throw new Error(errText);
+    if (response.status !== 201) {
+      const errText = response.data;
+      throw new Error(errText);
+    }
+  } catch (e) {
+    throw new Error(e.response.data);
   }
 }
 
@@ -68,17 +74,21 @@ export async function register(username, password) {
  * @param {string} token Authorization token received on login.
  */
 export async function getQuizzes(token) {
-  const response = await axios.get(`${GATEWAY}/quiz/api/quiz`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    const response = await axios.get(`${GATEWAY}/quiz/api/quiz`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  if (response.status !== 200) {
+    if (response.status !== 200) {
+      throw new Error("failed to fetch quizzes");
+    } else {
+      const data = response.data;
+      return data.response;
+    }
+  } catch (e) {
     throw new Error("failed to fetch quizzes");
-  } else {
-    const data = response.data;
-    return data.response;
   }
 }
 
@@ -89,17 +99,21 @@ export async function getQuizzes(token) {
  * @param {integer} id The id of the quiz to fetch.
  */
 export async function getQuizById(token, id) {
-  const response = await axios.get(`${GATEWAY}/quiz/api/quiz/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    const response = await axios.get(`${GATEWAY}/quiz/api/quiz/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  if (response.status !== 200) {
+    if (response.status !== 200) {
+      throw new Error("failed to fetch quizzes");
+    } else {
+      const data = response.data;
+      return data.response;
+    }
+  } catch (e) {
     throw new Error("failed to fetch quizzes");
-  } else {
-    const data = response.data;
-    return data.response;
   }
 }
 
@@ -121,24 +135,28 @@ export async function postQuiz(
   allocated_time,
   questions
 ) {
-  const response = await axios.post(
-    `${GATEWAY}/auth/register`,
-    JSON.stringify({
-      name: name,
-      start_date: start_date,
-      due_date: due_date,
-      allocated_time: allocated_time,
-      questions: questions,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  try {
+    const response = await axios.post(
+      `${GATEWAY}/auth/register`,
+      JSON.stringify({
+        name: name,
+        start_date: start_date,
+        due_date: due_date,
+        allocated_time: allocated_time,
+        questions: questions,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-  if (response.status !== 200) {
+    if (response.status !== 200) {
+      throw new Error("failed to create quiz");
+    }
+  } catch (e) {
     throw new Error("failed to create quiz");
   }
 }
