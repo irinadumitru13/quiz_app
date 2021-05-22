@@ -55,10 +55,16 @@ export default function QuizPreview({ quiz, canEdit, onClick }) {
       : classes.statusInFuture;
 
   return (
-    <Paper className={classes.padded} onClick={onClick}>
+    <Paper
+      className={classes.padded}
+      onClick={() => {
+        if (quiz.status === "open") return onClick;
+        return console.log("not available");
+      }}
+    >
       <Typography component="h1" variant="h6" className={classes.spread}>
         {quiz.quiz_name}
-        {canEdit && (
+        {canEdit && quiz.status !== "ended" && (
           <IconButton
             className={classes.editButton}
             color="primary"
