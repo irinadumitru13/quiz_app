@@ -40,7 +40,7 @@ Router.post('/', async (req, res) => {
         }
     }
 
-    ResponseFilter.setResponseDetails(res, 201, `Quiz ${result_quiz.quiz_id} added in the database`, req.originalUrl);
+    ResponseFilter.setResponseDetails(res, 201, result_quiz, req.originalUrl);
 });
 
 Router.get('/', async (req, res) => {

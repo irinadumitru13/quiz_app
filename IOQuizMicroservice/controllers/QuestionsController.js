@@ -27,7 +27,7 @@ Router.post('/', async (req, res) => {
         await AnswersRepository.addAsync(result.question_id, answer.answer, answer.is_correct, answer.points);
     }
 
-    ResponseFilter.setResponseDetails(res, 201, `Question ${result.question_id} added in the database.`, req.originalUrl);
+    ResponseFilter.setResponseDetails(res, 201, result, req.originalUrl);
 });
 
 Router.get('/', async (req, res) => {

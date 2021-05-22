@@ -5,7 +5,7 @@ const {
 const addAsync = async (question_id, answer, is_correct, points) => {
     console.info(`Adding answer in database async...`);
 
-    const answers = await queryAsync('INSERT INTO ANSWERS (question_id, answer, is_correct, points) VALUES ($1, $2, $3, $4) RETURNING *',
+    const answers = await queryAsync('INSERT INTO ANSWERS (question_id, answer, is_correct, points) VALUES ($1, $2, $3, $4) RETURNING answer_id',
         [question_id, answer, is_correct, points]);
 
     return answers[0];

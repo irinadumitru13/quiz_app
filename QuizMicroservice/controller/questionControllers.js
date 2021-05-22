@@ -17,7 +17,7 @@ Router.post('/', async (req, res) => {
         answers
     } = req.body;
 
-    if (quiz_id !== undefined) {
+    if (quiz_id === undefined) {
         throw new ServerError('No quiz_id provided.', 400);
     }
 
@@ -56,7 +56,7 @@ Router.post('/', async (req, res) => {
             throw new ServerError('answer must be a string.', 400);
         }
 
-        if (is_correct !== undefined) {
+        if (is_correct === undefined) {
             throw new ServerError('Answers should contain is_correct field.', 400);
         }
 
@@ -64,7 +64,7 @@ Router.post('/', async (req, res) => {
             throw new ServerError('is_correct should be a boolean value.', 400);
         }
 
-        if (points !== undefined) {
+        if (points === undefined) {
             throw new ServerError('Answers should contain points field.', 400);
         }
 
