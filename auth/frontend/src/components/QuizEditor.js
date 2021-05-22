@@ -57,7 +57,6 @@ export default function QuizEditor({ token }) {
   const onQuestionChange = (questionId) => (question) => {
     let newQuiz = { ...quiz };
     newQuiz.questions[questionId].question = question;
-    console.log(newQuiz);
     setQuiz(newQuiz);
   };
 
@@ -146,8 +145,9 @@ export default function QuizEditor({ token }) {
 
     if (id !== undefined) {
       try {
-        let questionId = await postQuestion(token, parseInt(id), newQuestion);
-        newQuestion.question_id = questionId;
+        let response = await postQuestion(token, parseInt(id), newQuestion);
+        newQuestion.question_id = response.question_id;
+        newQuestion.answers = response.answers;
       } catch (e) {
         alert.show(e.message);
         return;

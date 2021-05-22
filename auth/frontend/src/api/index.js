@@ -240,7 +240,7 @@ export async function postQuestion(token, quizId, question) {
       throw new Error("failed to create question");
     } else {
       const data = response.data;
-      return parseInt(data.response.question_id);
+      return data.response;
     }
   } catch (e) {
     throw new Error("failed to create question");
