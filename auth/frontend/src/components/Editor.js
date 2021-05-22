@@ -3,7 +3,7 @@ import { useCookies } from "react-cookie";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
 
-import QuizList from "./QuizList";
+import QuizEditor from "./QuizEditor";
 import UserInfo from "./UserInfo";
 
 const useStyles = makeStyles((theme) => ({
@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Home() {
+export default function Editor() {
   const classes = useStyles();
   const [cookie] = useCookies(["token", "session_info"]);
 
@@ -24,7 +24,7 @@ export default function Home() {
           <UserInfo user={cookie.session_info} />
         </Grid>
         <Grid item xs={9}>
-          <QuizList token={cookie.token} user={cookie.session_info} />
+          <QuizEditor token={cookie.token} />
         </Grid>
       </Grid>
     </div>

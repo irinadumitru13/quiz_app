@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Grid } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 
 import QuizPreview from "./QuizPreview";
 import { getQuizzes } from "../api";
 
-export default function QuizList({ token }) {
+const useStyles = makeStyles((theme) => ({
+  padded: {
+    paddingRight: theme.spacing(4),
+  },
+}));
+
+export default function QuizList({ token, user }) {
+  const classes = useStyles();
   const [quizzes, setQuizzes] = useState([]);
 
   const history = useHistory();
@@ -21,7 +29,7 @@ export default function QuizList({ token }) {
     }
 
     fetchQuizzes();
-  }, []);
+  }, [token]);
 
   const handleClick = (id) => {
     history.push(`/quiz/${id}`);
@@ -30,10 +38,10 @@ export default function QuizList({ token }) {
   const generateGridItems = () => {
     return quizzes.map((quiz, idx) => {
       return (
-        <Grid key={idx} item xs={2}>
+        <Grid key={idx} item xs={3}>
           <QuizPreview
-            quizTitle={quiz.quiz_name}
-            status={quiz.status}
+            quiz={quiz}
+            canEdit={user.user_permissions >= 5}
             onClick={() => {
               handleClick(quiz.quiz_id);
             }}
@@ -44,7 +52,7 @@ export default function QuizList({ token }) {
   };
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} className={classes.padded}>
       {generateGridItems()}
     </Grid>
   );

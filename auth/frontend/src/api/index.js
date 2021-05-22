@@ -127,23 +127,16 @@ export async function getQuizById(token, id) {
  * @param {integer} allocated_time The available amount of time to solve.
  * @param {question} questions A list of questions.
  */
-export async function postQuiz(
-  token,
-  name,
-  start_date,
-  due_date,
-  allocated_time,
-  questions
-) {
+export async function postQuiz(token, quiz) {
   try {
     const response = await axios.post(
-      `${GATEWAY}/auth/register`,
+      `${GATEWAY}/quiz/api/quiz`,
       JSON.stringify({
-        name: name,
-        start_date: start_date,
-        due_date: due_date,
-        allocated_time: allocated_time,
-        questions: questions,
+        quiz_name: quiz.quiz_name,
+        start_date: quiz.start_date.replace("T", " ").slice(0, -5),
+        due_date: quiz.due_date.replace("T", " ").slice(0, -5),
+        allocated_time: quiz.allocated_time,
+        questions: quiz.questions,
       }),
       {
         headers: {

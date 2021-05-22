@@ -10,6 +10,7 @@ import Register from "./Register";
 import PrivateRoute from "./PrivateRoute";
 import Home from "./Home";
 import Challenge from "./Challenge";
+import Editor from "./Editor";
 
 const useStyles = makeStyles((theme) => ({
   app: {
@@ -44,6 +45,18 @@ export default function App() {
             path="/quiz/:id"
             token={cookie.token}
             component={Challenge}
+          />
+          <PrivateRoute
+            path="/edit/:id"
+            permissionLevel={5}
+            token={cookie.token}
+            component={Editor}
+          />
+          <PrivateRoute
+            path="/new"
+            permissionLevel={5}
+            token={cookie.token}
+            component={Editor}
           />
           <PrivateRoute path="/" token={cookie.token} component={Home} />
         </Switch>

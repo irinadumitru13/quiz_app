@@ -23,7 +23,7 @@ export default function Quiz({ token }) {
     }
 
     fetchQuizById(id);
-  }, [id]);
+  }, [id, token]);
 
   const setSelection = (idx, newSelection) => {
     var newSelections = [...selections];
