@@ -6,7 +6,13 @@ import { useAlert } from "react-alert";
 
 import QuestionEditor from "./QuestionEditor";
 import DateTimePicker from "./DateTimePicker";
-import { getQuizById, postQuiz, postQuestion, postAnswer } from "../api";
+import {
+  getQuizById,
+  postQuiz,
+  postQuestion,
+  deleteQuestion,
+  postAnswer,
+} from "../api";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
@@ -139,10 +145,18 @@ export default function QuizEditor({ token }) {
     setRefresh(!refresh);
   };
 
-  const onQuestionRemove = (questionId) => () => {
+  const onQuestionRemove = (questionId) => async () => {
+    if (id !== undefined) {
+      try {
+        await deleteQuestion(token, quiz.questions[questionId].question_id);
+      } catch (e) {
+        alert.show(e.message);
+        return;
+      }
+    }
+
     let newQuiz = { ...quiz };
     newQuiz.questions.splice(questionId, 1);
-    console.log(newQuiz.questions);
     setQuiz(newQuiz);
     setRefresh(!refresh);
   };
