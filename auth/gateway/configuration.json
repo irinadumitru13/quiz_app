@@ -106,7 +106,29 @@
 			]	
 		},
 		{
-			"endpoint": "/quiz/api/quiz",
+			"endpoint": "/mentainer/quiz/api/quiz/{id}",
+			"method": "GET",
+			"output_encoding": "no-op",
+			"extra_config": {},
+			"backend": [
+				{
+					"url_pattern": "/api/quiz/{id}",
+					"encoding": "no-op",
+					"sd": "static",
+					"method": "GET",
+					"extra_config": {},
+					"host": [
+						"http://quiz-service:80"
+					],
+					"disable_host_sanitize": true
+				}
+			],
+			"headers_to_pass": [
+				"*"
+			]	
+		},
+		{
+			"endpoint": "/mentainer/quiz/api/quiz",
 			"method": "POST",
 			"output_encoding": "no-op",
 			"extra_config": {},
@@ -128,7 +150,7 @@
 			]
 		},
 		{
-			"endpoint": "/quiz/api/quiz/{id}",
+			"endpoint": "/mentainer/quiz/api/quiz/{id}",
 			"method": "PUT",
 			"output_encoding": "no-op",
 			"extra_config": {},
@@ -150,7 +172,7 @@
 			]
 		},
 		{
-			"endpoint": "/quiz/api/question",
+			"endpoint": "/mentainer/quiz/api/question",
 			"method": "POST",
 			"output_encoding": "no-op",
 			"extra_config": {},
@@ -172,7 +194,7 @@
 			]
 		},
 		{
-			"endpoint": "/quiz/api/question/{id}",
+			"endpoint": "/mentainer/quiz/api/question/{id}",
 			"method": "DELETE",
 			"output_encoding": "no-op",
 			"extra_config": {},
@@ -194,7 +216,7 @@
 			]
 		},
 		{
-			"endpoint": "/quiz/api/answer",
+			"endpoint": "/mentainer/quiz/api/answer",
 			"method": "POST",
 			"output_encoding": "no-op",
 			"extra_config": {},
@@ -216,7 +238,7 @@
 			]
 		},
 		{
-			"endpoint": "/quiz/api/answer/{id}",
+			"endpoint": "/mentainer/quiz/api/answer/{id}",
 			"method": "DELETE",
 			"output_encoding": "no-op",
 			"extra_config": {},
@@ -226,6 +248,28 @@
 					"encoding": "no-op",
 					"sd": "static",
 					"method": "DELETE",
+					"extra_config": {},
+					"host": [
+						"http://quiz-service:80"
+					],
+					"disable_host_sanitize": true
+				}
+			],
+			"headers_to_pass": [
+				"*"
+			]
+		},
+		{
+			"endpoint": "/quiz/api/submission",
+			"method": "POST",
+			"output_encoding": "no-op",
+			"extra_config": {},
+			"backend": [
+				{
+					"url_pattern": "/api/submission",
+					"encoding": "no-op",
+					"sd": "static",
+					"method": "POST",
 					"extra_config": {},
 					"host": [
 						"http://quiz-service:80"

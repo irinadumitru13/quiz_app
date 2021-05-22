@@ -52,7 +52,7 @@ export default function Question({ text, answers, selection, setSelection }) {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setSelection("")}
+          onClick={() => setSelection(null)}
         >
           Clear
         </Button>

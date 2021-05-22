@@ -1,4 +1,5 @@
 const GATEWAY = "http://localhost:8004";
+const GATEWAY_MENTAINER = GATEWAY + "/mentainer";
 
 const axios = require("axios").default;
 
@@ -118,6 +119,34 @@ export async function getQuizById(token, id) {
 }
 
 /**
+ * Fetch quiz by id as mentainer.
+ *
+ * @param {string} token Authorization token received on login.
+ * @param {integer} id The id of the quiz to fetch.
+ */
+export async function getMentainerQuizById(token, id) {
+  try {
+    const response = await axios.get(
+      `${GATEWAY_MENTAINER}/quiz/api/quiz/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new Error("failed to fetch quizzes");
+    } else {
+      const data = response.data;
+      return data.response;
+    }
+  } catch (e) {
+    throw new Error("failed to fetch quizzes");
+  }
+}
+
+/**
  * Attempt to create a new quiz
  *
  * @param {string} token Authorization token received on login.
@@ -126,7 +155,7 @@ export async function getQuizById(token, id) {
 export async function postQuiz(token, quiz) {
   try {
     const response = await axios.post(
-      `${GATEWAY}/quiz/api/quiz`,
+      `${GATEWAY_MENTAINER}/quiz/api/quiz`,
       JSON.stringify({
         quiz_name: quiz.quiz_name,
         start_date: quiz.start_date.replace("T", " ").slice(0, -5),
@@ -159,7 +188,7 @@ export async function postQuiz(token, quiz) {
 export async function putQuiz(token, quiz) {
   try {
     const response = await axios.put(
-      `${GATEWAY}/quiz/api/quiz/${quiz.quiz_id}`,
+      `${GATEWAY_MENTAINER}/quiz/api/quiz/${quiz.quiz_id}`,
       JSON.stringify({
         quiz_name: quiz.quiz_name,
         start_date: quiz.start_date.replace("T", " ").slice(0, -5),
@@ -193,7 +222,7 @@ export async function putQuiz(token, quiz) {
 export async function postQuestion(token, quizId, question) {
   try {
     const response = await axios.post(
-      `${GATEWAY}/quiz/api/question`,
+      `${GATEWAY_MENTAINER}/quiz/api/question`,
       JSON.stringify({
         quiz_id: quizId,
         question: question.question,
@@ -227,7 +256,7 @@ export async function postQuestion(token, quizId, question) {
 export async function deleteQuestion(token, questionId) {
   try {
     const response = await axios.delete(
-      `${GATEWAY}/quiz/api/question/${questionId}`,
+      `${GATEWAY_MENTAINER}/quiz/api/question/${questionId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -253,7 +282,7 @@ export async function deleteQuestion(token, questionId) {
 export async function postAnswer(token, questionId, answer) {
   try {
     const response = await axios.post(
-      `${GATEWAY}/quiz/api/answer`,
+      `${GATEWAY_MENTAINER}/quiz/api/answer`,
       JSON.stringify({
         question_id: questionId,
         answer: answer.answer,
@@ -288,7 +317,7 @@ export async function postAnswer(token, questionId, answer) {
 export async function deleteAnswer(token, answerId) {
   try {
     const response = await axios.delete(
-      `${GATEWAY}/quiz/api/answer/${answerId}`,
+      `${GATEWAY_MENTAINER}/quiz/api/answer/${answerId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -301,5 +330,38 @@ export async function deleteAnswer(token, answerId) {
     }
   } catch (e) {
     throw new Error("failed to delete answer");
+  }
+}
+
+/**
+ * Attempts submit a quiz attempt.
+ *
+ * @param {string} token Authorization token received on login.
+ * @param {string} quizName The usernames associated password.
+ * @param {string} score The obtained score for the quiz.
+ * NOTE: on failure, the function throws an error.
+ */
+export async function submitQuiz(token, quiz_name, score) {
+  try {
+    const response = await axios.post(
+      `${GATEWAY}/quiz/api/submission`,
+      JSON.stringify({
+        quiz_name: quiz_name,
+        score: score,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      const errText = response.data;
+      throw new Error(errText);
+    }
+  } catch (e) {
+    throw new Error(e.response.data);
   }
 }

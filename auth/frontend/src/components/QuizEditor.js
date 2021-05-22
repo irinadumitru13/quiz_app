@@ -7,7 +7,7 @@ import { useAlert } from "react-alert";
 import QuestionEditor from "./QuestionEditor";
 import DateTimePicker from "./DateTimePicker";
 import {
-  getQuizById,
+  getMentainerQuizById,
   postQuiz,
   putQuiz,
   postQuestion,
@@ -33,7 +33,7 @@ export default function QuizEditor({ token }) {
   useEffect(() => {
     async function fetchQuizById(id) {
       try {
-        let resp = await getQuizById(token, id);
+        let resp = await getMentainerQuizById(token, id);
         setQuiz(resp);
       } catch (e) {
         alert.show(e.message);
