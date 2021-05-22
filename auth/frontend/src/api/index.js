@@ -156,7 +156,7 @@ export async function getMentainerQuizById(token, id) {
 export async function postQuiz(token, quiz) {
   try {
     const response = await axios.post(
-      `${GATEWAY_MENTAINER}/quiz/api/quiz`,
+      `${GATEWAY_ADMIN}/quiz/api/quiz`,
       JSON.stringify({
         quiz_name: quiz.quiz_name,
         start_date: quiz.start_date.replace("T", " ").slice(0, -5),

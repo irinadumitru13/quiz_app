@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Grid, Button, TextField, Paper } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
+import { useHistory } from "react-router-dom";
 
 import QuestionEditor from "./QuestionEditor";
 import DateTimePicker from "./DateTimePicker";
@@ -27,7 +28,8 @@ export default function QuizEditor({ token }) {
   const [quiz, setQuiz] = useState(undefined);
   const [refresh, setRefresh] = useState(true);
 
-  let { id } = useParams();
+  const { id } = useParams();
+  const history = useHistory();
   const alert = useAlert();
 
   useEffect(() => {
@@ -209,6 +211,7 @@ export default function QuizEditor({ token }) {
         alert.show("Quiz updated!");
       } catch (e) {
         alert.show(e.message);
+        return;
       }
     } else {
       try {
@@ -216,8 +219,10 @@ export default function QuizEditor({ token }) {
         alert.show("Quiz created!");
       } catch (e) {
         alert.show(e.message);
+        return;
       }
     }
+    history.push("/");
   };
 
   const generateQuestions = () => {
