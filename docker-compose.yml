@@ -3,6 +3,7 @@ version: "3.8"
 services:
   quiz-service:
     build: QuizMicroservice
+    restart: always
     environment:
       IO_SERVICE_API_ROUTE: io-quiz-service/api
       NODE_ENV: development
@@ -14,6 +15,7 @@ services:
 
   io-quiz-service:
     build: IOQuizMicroservice
+    restart: always
     environment:
       PGUSER: admin
       PGPASSWORD: admin
@@ -27,6 +29,7 @@ services:
 
   quiz-db:
     image: postgres:12
+    restart: always
     environment:
       POSTGRES_DB: quiz-app
       POSTGRES_USER: admin
@@ -40,6 +43,7 @@ services:
 
   adminer:
     image: adminer
+    restart: always
     networks:
       - quiz-database-admin
       - user-database-admin
@@ -47,11 +51,13 @@ services:
 
   session-manager-db:
     image: redis
+    restart: always
     networks:
       - session-manager-internal
 
   session-manager:
     build: auth/session_manager
+    restart: always
     environment:
       PORT: 8000
       REDIS_DNS: session-manager-db
@@ -64,6 +70,7 @@ services:
 
   user-db:
     image: postgres:alpine
+    restart: always
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
@@ -76,6 +83,7 @@ services:
 
   io-login-manager:
     build: auth/io
+    restart: always
     environment:
       PORT: 8001
       SQL_USER: admin
@@ -90,6 +98,7 @@ services:
 
   login-manager:
     build: auth/login_manager
+    restart: always
     environment:
       PORT: 8002
       SESSION_MANAGER: http://session-manager:8000
@@ -103,6 +112,7 @@ services:
 
   gateway:
     build: auth/gateway
+    restart: always
     environment:
       PORT: 8004
       CONFIG: configuration.json
@@ -116,6 +126,7 @@ services:
 
   gateway-influx:
     build: auth/influx
+    restart: always
     environment:
       INFLUXDB_HTTP_ENABLED: "true"
       INFLUXDB_HTTP_FLUX_ENABLED: "true"
@@ -125,6 +136,7 @@ services:
 
   grafana:
     build: auth/grafana
+    restart: always
     volumes:
       - ./auth/grafana/grafana.ini:/etc/grafana/grafana.ini
     networks:
@@ -133,6 +145,7 @@ services:
 
   frontend:
     build: auth/frontend
+    restart: always
     ports:
       - 80:80
     volumes:
