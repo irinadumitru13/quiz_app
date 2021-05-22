@@ -42,7 +42,7 @@ export default function QuizList({ token, user }) {
           <QuizPreview
             quiz={quiz}
             canEdit={user.user_permissions >= 5}
-            onClick={() => {
+            onQuizClick={() => {
               handleClick(quiz.quiz_id);
             }}
           />

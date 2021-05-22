@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function QuizPreview({ quiz, canEdit, onClick }) {
+export default function QuizPreview({ quiz, canEdit, onQuizClick }) {
   const classes = useStyles();
   const bull = <span className={classes.bullet}>•</span>;
 
@@ -54,14 +54,16 @@ export default function QuizPreview({ quiz, canEdit, onClick }) {
       ? classes.statusEnded
       : classes.statusInFuture;
 
+  const handleClick = () => {
+    if (quiz.status === "open") {
+      onQuizClick();
+      return;
+    }
+    console.log("not available");
+  };
+
   return (
-    <Paper
-      className={classes.padded}
-      onClick={() => {
-        if (quiz.status === "open") return onClick;
-        return console.log("not available");
-      }}
-    >
+    <Paper className={classes.padded} onClick={handleClick}>
       <Typography component="h1" variant="h6" className={classes.spread}>
         {quiz.quiz_name}
         {canEdit && quiz.status !== "ended" && (
