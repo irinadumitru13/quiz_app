@@ -341,12 +341,12 @@ export async function deleteAnswer(token, answerId) {
  * @param {string} score The obtained score for the quiz.
  * NOTE: on failure, the function throws an error.
  */
-export async function submitQuiz(token, quiz_name, score) {
+export async function submitQuiz(token, quizName, score) {
   try {
     const response = await axios.post(
       `${GATEWAY}/quiz/api/submission`,
       JSON.stringify({
-        quiz_name: quiz_name,
+        quiz_name: quizName,
         score: score,
       }),
       {
