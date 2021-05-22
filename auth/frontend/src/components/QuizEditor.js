@@ -12,6 +12,7 @@ import {
   postQuestion,
   deleteQuestion,
   postAnswer,
+  deleteAnswer,
 } from "../api";
 
 const useStyles = makeStyles((theme) => ({
@@ -71,7 +72,19 @@ export default function QuizEditor({ token }) {
     setQuiz(newQuiz);
   };
 
-  const onAnswerRemove = (questionId) => (answerId) => {
+  const onAnswerRemove = (questionId) => async (answerId) => {
+    if (id !== undefined) {
+      try {
+        await deleteAnswer(
+          token,
+          parseInt(quiz.questions[questionId].answers[answerId].answer_id)
+        );
+      } catch (e) {
+        alert.show(e.message);
+        return;
+      }
+    }
+
     let newQuiz = { ...quiz };
     newQuiz.questions[questionId].answers.splice(answerId, 1);
     setQuiz(newQuiz);

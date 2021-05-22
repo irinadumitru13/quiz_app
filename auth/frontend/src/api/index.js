@@ -189,7 +189,7 @@ export async function postQuestion(token, quizId, question) {
  * Attempt to delete the question associated with a given id.
  *
  * @param {string} token Authorization token received on login.
- * @param {integer} questionId The id of the quiz to add the question to.
+ * @param {integer} questionId The id of the question to delete.
  */
 export async function deleteQuestion(token, questionId) {
   try {
@@ -243,5 +243,30 @@ export async function postAnswer(token, questionId, answer) {
     }
   } catch (e) {
     throw new Error("failed to create answer");
+  }
+}
+
+/**
+ * Attempt to delete the answer associated with a given id.
+ *
+ * @param {string} token Authorization token received on login.
+ * @param {integer} answerId The id of the answer to delete.
+ */
+export async function deleteAnswer(token, answerId) {
+  try {
+    const response = await axios.delete(
+      `${GATEWAY}/quiz/api/answer/${answerId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new Error("failed to delete answer");
+    }
+  } catch (e) {
+    throw new Error("failed to delete answer");
   }
 }

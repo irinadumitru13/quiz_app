@@ -192,6 +192,28 @@
 			"headers_to_pass": [
 				"*"
 			]
+		},
+		{
+			"endpoint": "/quiz/api/answer/{id}",
+			"method": "DELETE",
+			"output_encoding": "no-op",
+			"extra_config": {},
+			"backend": [
+				{
+					"url_pattern": "/api/answer/{id}",
+					"encoding": "no-op",
+					"sd": "static",
+					"method": "DELETE",
+					"extra_config": {},
+					"host": [
+						"http://quiz-service:80"
+					],
+					"disable_host_sanitize": true
+				}
+			],
+			"headers_to_pass": [
+				"*"
+			]
 		}
 	],
 	"extra_config": {
