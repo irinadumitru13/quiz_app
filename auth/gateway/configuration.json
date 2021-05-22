@@ -81,7 +81,7 @@
 			],
 			"headers_to_pass": [
 				"*"
-			]	
+			]
 		},
 		{
 			"endpoint": "/quiz/api/quiz/{id}",
@@ -103,7 +103,7 @@
 			],
 			"headers_to_pass": [
 				"*"
-			]	
+			]
 		},
 		{
 			"endpoint": "/mentainer/quiz/api/quiz/{id}",
@@ -125,7 +125,7 @@
 			],
 			"headers_to_pass": [
 				"*"
-			]	
+			]
 		},
 		{
 			"endpoint": "/mentainer/quiz/api/quiz",
@@ -270,6 +270,28 @@
 					"encoding": "no-op",
 					"sd": "static",
 					"method": "POST",
+					"extra_config": {},
+					"host": [
+						"http://quiz-service:80"
+					],
+					"disable_host_sanitize": true
+				}
+			],
+			"headers_to_pass": [
+				"*"
+			]
+		},
+		{
+			"endpoint": "/mentainer/quiz/api/submission/quiz/{id}",
+			"method": "GET",
+			"output_encoding": "no-op",
+			"extra_config": {},
+			"backend": [
+				{
+					"url_pattern": "/api/submission/quiz/{id}",
+					"encoding": "no-op",
+					"sd": "static",
+					"method": "GET",
 					"extra_config": {},
 					"host": [
 						"http://quiz-service:80"

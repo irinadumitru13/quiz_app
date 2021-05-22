@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { IconButton, Typography, Paper, Button, Box } from "@material-ui/core";
+import { IconButton, Typography, Paper, Button } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router-dom";
 
@@ -96,7 +96,7 @@ export default function QuizPreview({ quiz, canEdit, onQuizClick }) {
           color="primary"
           onClick={(e) => {
             e.stopPropagation();
-            history.push(`/submissions/${quiz.quiz_id}`);
+            history.push(`/submissions/${encodeURI(quiz.quiz_name)}`);
           }}
         >
           view submissions
