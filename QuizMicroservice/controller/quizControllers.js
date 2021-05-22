@@ -69,7 +69,7 @@ Router.post('/', async (req, res) => {
         throw new ServerError('due_date should be in the format yyyy-MM-dd HH:mm:SS', 400);
     }
 
-    if (allocated_time !== undefined) {
+    if (allocated_time === undefined) {
         throw new ServerError('No allocated_time provided.', 400);
     }
 
