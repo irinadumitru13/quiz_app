@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { IconButton, Typography, Paper, Button } from "@material-ui/core";
+import { IconButton, Typography, Paper, Button, Box } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router-dom";
 
@@ -67,7 +67,7 @@ export default function QuizPreview({ quiz, canEdit, onQuizClick }) {
 
   return (
     <Paper className={classes.padded} onClick={handleClick}>
-      <Typography component="h1" variant="h6" className={classes.spread}>
+      <Typography noWrap component="h1" variant="h6" className={classes.spread}>
         {quiz.quiz_name}
         {canEdit && quiz.status !== "ended" && (
           <IconButton
