@@ -53,7 +53,7 @@ Router.post('/', async (req, res) => {
         throw new ServerError('No quiz_name provided.', 400);
     }
 
-    if (!score) {
+    if (score === undefined) {
         throw new ServerError('No score provided.', 400);
     }
 
