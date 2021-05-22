@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Grid, Paper, Typography } from "@material-ui/core";
+import { Grid, Paper, Typography, Button } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function QuizSelections({ selections }) {
+export default function QuizSelections({ selections, onSubmit }) {
   const classes = useStyles();
   const [currentSelections, setCurrentSelections] = useState(selections);
 
@@ -32,7 +32,7 @@ export default function QuizSelections({ selections }) {
   const getSelections = () => {
     return currentSelections.map((selection, idx) => {
       let className =
-        selection === ""
+        selection === null
           ? `${classes.questionStatus} ${classes.notSelected}`
           : `${classes.questionStatus} ${classes.selected}`;
 
@@ -52,6 +52,15 @@ export default function QuizSelections({ selections }) {
       <Grid container spacing={1}>
         {getSelections()}
       </Grid>
+      <Button
+        fullWidth
+        variant="contained"
+        color="primary"
+        className={classes.submit}
+        onClick={onSubmit}
+      >
+        Submit
+      </Button>
     </Paper>
   );
 }

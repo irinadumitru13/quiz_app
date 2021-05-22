@@ -3,10 +3,19 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Grid, Button, TextField, Paper } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
+import { useHistory } from "react-router-dom";
 
 import QuestionEditor from "./QuestionEditor";
 import DateTimePicker from "./DateTimePicker";
-import { getQuizById, postQuiz } from "../api";
+import {
+  getMentainerQuizById,
+  postQuiz,
+  putQuiz,
+  postQuestion,
+  deleteQuestion,
+  postAnswer,
+  deleteAnswer,
+} from "../api";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
@@ -19,13 +28,14 @@ export default function QuizEditor({ token }) {
   const [quiz, setQuiz] = useState(undefined);
   const [refresh, setRefresh] = useState(true);
 
-  let { id } = useParams();
+  const { id } = useParams();
+  const history = useHistory();
   const alert = useAlert();
 
   useEffect(() => {
     async function fetchQuizById(id) {
       try {
-        let resp = await getQuizById(token, id);
+        let resp = await getMentainerQuizById(token, id);
         setQuiz(resp);
       } catch (e) {
         alert.show(e.message);
@@ -44,12 +54,11 @@ export default function QuizEditor({ token }) {
         allocated_time: 1,
       });
     }
-  }, [id, token]);
+  }, [id, token, alert]);
 
   const onQuestionChange = (questionId) => (question) => {
     let newQuiz = { ...quiz };
     newQuiz.questions[questionId].question = question;
-    console.log(newQuiz);
     setQuiz(newQuiz);
   };
 
@@ -65,20 +74,48 @@ export default function QuizEditor({ token }) {
     setQuiz(newQuiz);
   };
 
-  const onAnswerRemove = (questionId) => (answerId) => {
+  const onAnswerRemove = (questionId) => async (answerId) => {
+    if (id !== undefined) {
+      try {
+        await deleteAnswer(
+          token,
+          parseInt(quiz.questions[questionId].answers[answerId].answer_id)
+        );
+      } catch (e) {
+        alert.show(e.message);
+        return;
+      }
+    }
+
     let newQuiz = { ...quiz };
     newQuiz.questions[questionId].answers.splice(answerId, 1);
     setQuiz(newQuiz);
     setRefresh(!refresh);
   };
 
-  const onAnswerAdd = (questionId) => () => {
+  const onAnswerAdd = (questionId) => async () => {
     let newQuiz = { ...quiz };
-    newQuiz.questions[questionId].answers.push({
-      answer: "",
+    let newAnswer = {
+      answer: "Dummy answer",
       is_correct: false,
       points: 0,
-    });
+    };
+
+    if (id !== undefined) {
+      try {
+        let answerId = await postAnswer(
+          token,
+          parseInt(quiz.questions[questionId].question_id),
+          newAnswer
+        );
+        newAnswer.answer_id = answerId;
+      } catch (e) {
+        alert.show(e.message);
+        return;
+      }
+    }
+
+    newQuiz.questions[questionId].answers.push(newAnswer);
     setQuiz(newQuiz);
     setRefresh(!refresh);
   };
@@ -95,17 +132,47 @@ export default function QuizEditor({ token }) {
     setRefresh(!refresh);
   };
 
-  const onQuestionAdd = () => {
+  const onQuestionAdd = async () => {
     let newQuiz = { ...quiz };
-    newQuiz.questions.push({ question: "", answers: [] });
+    let newQuestion = {
+      question: "New question",
+      answers: [
+        {
+          answer: "Dummy answer",
+          is_correct: false,
+          points: 0,
+        },
+      ],
+    };
+
+    if (id !== undefined) {
+      try {
+        let response = await postQuestion(token, parseInt(id), newQuestion);
+        newQuestion.question_id = response.question_id;
+        newQuestion.answers = response.answers;
+      } catch (e) {
+        alert.show(e.message);
+        return;
+      }
+    }
+
+    newQuiz.questions.push(newQuestion);
     setQuiz(newQuiz);
     setRefresh(!refresh);
   };
 
-  const onQuestionRemove = (questionId) => () => {
+  const onQuestionRemove = (questionId) => async () => {
+    if (id !== undefined) {
+      try {
+        await deleteQuestion(token, quiz.questions[questionId].question_id);
+      } catch (e) {
+        alert.show(e.message);
+        return;
+      }
+    }
+
     let newQuiz = { ...quiz };
     newQuiz.questions.splice(questionId, 1);
-    console.log(newQuiz.questions);
     setQuiz(newQuiz);
     setRefresh(!refresh);
   };
@@ -138,12 +205,24 @@ export default function QuizEditor({ token }) {
       return;
     }
 
-    try {
-      await postQuiz(token, quiz);
-      alert.show("Quiz created!");
-    } catch (e) {
-      alert.show(e.message);
+    if (id !== undefined) {
+      try {
+        await putQuiz(token, quiz);
+        alert.show("Quiz updated!");
+      } catch (e) {
+        alert.show(e.message);
+        return;
+      }
+    } else {
+      try {
+        await postQuiz(token, quiz);
+        alert.show("Quiz created!");
+      } catch (e) {
+        alert.show(e.message);
+        return;
+      }
     }
+    history.push("/");
   };
 
   const generateQuestions = () => {

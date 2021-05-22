@@ -11,6 +11,7 @@ import PrivateRoute from "./PrivateRoute";
 import Home from "./Home";
 import Challenge from "./Challenge";
 import Editor from "./Editor";
+import Submissions from "./Submissions";
 
 const useStyles = makeStyles((theme) => ({
   app: {
@@ -54,9 +55,21 @@ export default function App() {
           />
           <PrivateRoute
             path="/new"
-            permissionLevel={5}
+            permissionLevel={10}
             token={cookie.token}
             component={Editor}
+          />
+          <PrivateRoute
+            path="/submissions/:quizName"
+            permissionLevel={5}
+            token={cookie.token}
+            component={Submissions}
+          />
+          <PrivateRoute
+            path="/submissions"
+            permissionLevel={0}
+            token={cookie.token}
+            component={Submissions}
           />
           <PrivateRoute path="/" token={cookie.token} component={Home} />
         </Switch>

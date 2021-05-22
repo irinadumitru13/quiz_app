@@ -1,18 +1,21 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { IconButton, Typography, Paper } from "@material-ui/core";
+import { IconButton, Typography, Paper, Button } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
-    padding: theme.spacing(4),
+    padding: theme.spacing(3),
     transitionDuration: "0.3s",
     transitionProperty: "transform",
     "&:hover": {
       transform: "scale(1.05)",
       cursor: "pointer",
     },
+  },
+  marginTop: {
+    marginTop: theme.spacing(1),
   },
   statusOpen: {
     color: "green",
@@ -27,11 +30,6 @@ const useStyles = makeStyles((theme) => ({
     display: "inline-block",
     margin: "0 2px",
     transform: "scale(1.5)",
-  },
-  spread: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   editButton: {
     borderRadius: theme.spacing(4),
@@ -64,8 +62,7 @@ export default function QuizPreview({ quiz, canEdit, onQuizClick }) {
 
   return (
     <Paper className={classes.padded} onClick={handleClick}>
-      <Typography component="h1" variant="h6" className={classes.spread}>
-        {quiz.quiz_name}
+      <Typography noWrap component="h1" variant="h6">
         {canEdit && quiz.status !== "ended" && (
           <IconButton
             className={classes.editButton}
@@ -79,12 +76,27 @@ export default function QuizPreview({ quiz, canEdit, onQuizClick }) {
             <EditIcon />
           </IconButton>
         )}
+        {quiz.quiz_name}
       </Typography>
       <Typography>
         <span className={statusClass}>{bull}</span>
         {" Status: "}
         <span className={statusClass}>{quiz.status}</span>
       </Typography>
+      {canEdit && (
+        <Button
+          className={classes.marginTop}
+          fullWidth
+          variant="contained"
+          color="primary"
+          onClick={(e) => {
+            e.stopPropagation();
+            history.push(`/submissions/${encodeURI(quiz.quiz_name)}`);
+          }}
+        >
+          view submissions
+        </Button>
+      )}
     </Paper>
   );
 }

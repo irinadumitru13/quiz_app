@@ -9,8 +9,6 @@ export default function PrivateRoute({
 }) {
   const [cookie] = useCookies(["token", "session_info"]);
 
-  console.log(cookie.session_info);
-
   if (
     permissionLevel !== undefined &&
     cookie.session_info.user_permissions < permissionLevel
