@@ -6,7 +6,7 @@ import { useAlert } from "react-alert";
 
 import QuestionEditor from "./QuestionEditor";
 import DateTimePicker from "./DateTimePicker";
-import { getQuizById, postQuiz, postQuestion } from "../api";
+import { getQuizById, postQuiz, postQuestion, postAnswer } from "../api";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
@@ -72,19 +72,31 @@ export default function QuizEditor({ token }) {
     setRefresh(!refresh);
   };
 
-  const onAnswerAdd = (questionId) => () => {
-    try {
-      let newQuiz = { ...quiz };
-      newQuiz.questions[questionId].answers.push({
-        answer: "",
-        is_correct: false,
-        points: 0,
-      });
-      setQuiz(newQuiz);
-      setRefresh(!refresh);
-    } catch (e) {
-      alert.show(e.message);
+  const onAnswerAdd = (questionId) => async () => {
+    let newQuiz = { ...quiz };
+    let newAnswer = {
+      answer: "Dummy answer",
+      is_correct: false,
+      points: 0,
+    };
+
+    if (id !== undefined) {
+      try {
+        let answerId = await postAnswer(
+          token,
+          parseInt(quiz.questions[questionId].question_id),
+          newAnswer
+        );
+        newAnswer.answer_id = answerId;
+      } catch (e) {
+        alert.show(e.message);
+        return;
+      }
     }
+
+    newQuiz.questions[questionId].answers.push(newAnswer);
+    setQuiz(newQuiz);
+    setRefresh(!refresh);
   };
 
   const onAnswerFlip = (questionId) => (answerId, type) => {

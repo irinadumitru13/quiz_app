@@ -184,3 +184,39 @@ export async function postQuestion(token, quizId, question) {
     throw new Error("failed to create question");
   }
 }
+
+/**
+ * Attempt to create a new question.
+ *
+ * @param {string} token Authorization token received on login.
+ * @param {integer} questionId The id of the question to add the answer to.
+ * @param {answer} answer The question structure.
+ */
+export async function postAnswer(token, questionId, answer) {
+  try {
+    const response = await axios.post(
+      `${GATEWAY}/quiz/api/answer`,
+      JSON.stringify({
+        question_id: questionId,
+        answer: answer.answer,
+        is_correct: answer.is_correct,
+        points: answer.points,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new Error("failed to create answer");
+    } else {
+      const data = response.data;
+      return parseInt(data.response.answer_id);
+    }
+  } catch (e) {
+    throw new Error("failed to create answer");
+  }
+}
