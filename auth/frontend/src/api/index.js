@@ -151,6 +151,39 @@ export async function postQuiz(token, quiz) {
 }
 
 /**
+ * Attempt to update a quiz.
+ *
+ * @param {string} token Authorization token received on login.
+ * @param {quiz} quiz The quiz structure.
+ */
+export async function putQuiz(token, quiz) {
+  try {
+    const response = await axios.put(
+      `${GATEWAY}/quiz/api/quiz/${quiz.quiz_id}`,
+      JSON.stringify({
+        quiz_name: quiz.quiz_name,
+        start_date: quiz.start_date.replace("T", " ").slice(0, -5),
+        due_date: quiz.due_date.replace("T", " ").slice(0, -5),
+        allocated_time: quiz.allocated_time,
+        questions: quiz.questions,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new Error("failed to update quiz");
+    }
+  } catch (e) {
+    throw new Error("failed to update quiz");
+  }
+}
+
+/**
  * Attempt to create a new question.
  *
  * @param {string} token Authorization token received on login.

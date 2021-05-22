@@ -9,6 +9,7 @@ import DateTimePicker from "./DateTimePicker";
 import {
   getQuizById,
   postQuiz,
+  putQuiz,
   postQuestion,
   deleteQuestion,
   postAnswer,
@@ -202,11 +203,20 @@ export default function QuizEditor({ token }) {
       return;
     }
 
-    try {
-      await postQuiz(token, quiz);
-      alert.show("Quiz created!");
-    } catch (e) {
-      alert.show(e.message);
+    if (id !== undefined) {
+      try {
+        await putQuiz(token, quiz);
+        alert.show("Quiz updated!");
+      } catch (e) {
+        alert.show(e.message);
+      }
+    } else {
+      try {
+        await postQuiz(token, quiz);
+        alert.show("Quiz created!");
+      } catch (e) {
+        alert.show(e.message);
+      }
     }
   };
 

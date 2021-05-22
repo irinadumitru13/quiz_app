@@ -128,6 +128,28 @@
 			]
 		},
 		{
+			"endpoint": "/quiz/api/quiz/{id}",
+			"method": "PUT",
+			"output_encoding": "no-op",
+			"extra_config": {},
+			"backend": [
+				{
+					"url_pattern": "/api/quiz/{id}",
+					"encoding": "no-op",
+					"sd": "static",
+					"method": "PUT",
+					"extra_config": {},
+					"host": [
+						"http://quiz-service:80"
+					],
+					"disable_host_sanitize": true
+				}
+			],
+			"headers_to_pass": [
+				"*"
+			]
+		},
+		{
 			"endpoint": "/quiz/api/question",
 			"method": "POST",
 			"output_encoding": "no-op",
