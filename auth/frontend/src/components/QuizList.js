@@ -12,6 +12,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const priority = {
+  open: 3,
+  ended: 2,
+};
+
 export default function QuizList({ token, user }) {
   const classes = useStyles();
   const [quizzes, setQuizzes] = useState([]);
@@ -36,19 +41,25 @@ export default function QuizList({ token, user }) {
   };
 
   const generateGridItems = () => {
-    return quizzes.map((quiz, idx) => {
-      return (
-        <Grid key={idx} item xs={3}>
-          <QuizPreview
-            quiz={quiz}
-            canEdit={user.user_permissions >= 5}
-            onQuizClick={() => {
-              handleClick(quiz.quiz_id);
-            }}
-          />
-        </Grid>
-      );
-    });
+    return quizzes
+      .sort((a, b) => {
+        if (priority[a.status] > priority[b.status]) return -1;
+        if (a.due_date < b.due_date) return -1;
+        return 0;
+      })
+      .map((quiz, idx) => {
+        return (
+          <Grid key={idx} item xs={3}>
+            <QuizPreview
+              quiz={quiz}
+              canEdit={user.user_permissions >= 5}
+              onQuizClick={() => {
+                handleClick(quiz.quiz_id);
+              }}
+            />
+          </Grid>
+        );
+      });
   };
 
   return (
