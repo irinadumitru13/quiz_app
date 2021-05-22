@@ -126,6 +126,28 @@
 			"headers_to_pass": [
 				"*"
 			]
+		},
+		{
+			"endpoint": "/quiz/api/question",
+			"method": "POST",
+			"output_encoding": "no-op",
+			"extra_config": {},
+			"backend": [
+				{
+					"url_pattern": "/api/question",
+					"encoding": "no-op",
+					"sd": "static",
+					"method": "POST",
+					"extra_config": {},
+					"host": [
+						"http://quiz-service:80"
+					],
+					"disable_host_sanitize": true
+				}
+			],
+			"headers_to_pass": [
+				"*"
+			]
 		}
 	],
 	"extra_config": {

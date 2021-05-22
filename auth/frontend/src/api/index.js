@@ -121,11 +121,7 @@ export async function getQuizById(token, id) {
  * Attempt to create a new quiz
  *
  * @param {string} token Authorization token received on login.
- * @param {string} name The name of the quiz.
- * @param {timestamp} start_date The date at which the quiz becomes available.
- * @param {timestamp} due_date The date at which the quiz becomes unavailable.
- * @param {integer} allocated_time The available amount of time to solve.
- * @param {question} questions A list of questions.
+ * @param {quiz} quiz The quiz structure.
  */
 export async function postQuiz(token, quiz) {
   try {
@@ -137,6 +133,38 @@ export async function postQuiz(token, quiz) {
         due_date: quiz.due_date.replace("T", " ").slice(0, -5),
         allocated_time: quiz.allocated_time,
         questions: quiz.questions,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new Error("failed to create quiz");
+    }
+  } catch (e) {
+    throw new Error("failed to create quiz");
+  }
+}
+
+/**
+ * Attempt to create a new question.
+ *
+ * @param {string} token Authorization token received on login.
+ * @param {integer} quizId The id of the quiz to add the question to.
+ * @param {string} question The question structure.
+ */
+export async function postQuestion(token, quizId, question) {
+  try {
+    const response = await axios.post(
+      `${GATEWAY}/quiz/api/question`,
+      JSON.stringify({
+        quiz_id: quizId,
+        question: question.question,
+        answers: question.answers,
       }),
       {
         headers: {

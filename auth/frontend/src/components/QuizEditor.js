@@ -6,7 +6,7 @@ import { useAlert } from "react-alert";
 
 import QuestionEditor from "./QuestionEditor";
 import DateTimePicker from "./DateTimePicker";
-import { getQuizById, postQuiz } from "../api";
+import { getQuizById, postQuiz, postQuestion } from "../api";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
@@ -44,7 +44,7 @@ export default function QuizEditor({ token }) {
         allocated_time: 1,
       });
     }
-  }, [id, token]);
+  }, [id, token, alert]);
 
   const onQuestionChange = (questionId) => (question) => {
     let newQuiz = { ...quiz };
@@ -73,14 +73,18 @@ export default function QuizEditor({ token }) {
   };
 
   const onAnswerAdd = (questionId) => () => {
-    let newQuiz = { ...quiz };
-    newQuiz.questions[questionId].answers.push({
-      answer: "",
-      is_correct: false,
-      points: 0,
-    });
-    setQuiz(newQuiz);
-    setRefresh(!refresh);
+    try {
+      let newQuiz = { ...quiz };
+      newQuiz.questions[questionId].answers.push({
+        answer: "",
+        is_correct: false,
+        points: 0,
+      });
+      setQuiz(newQuiz);
+      setRefresh(!refresh);
+    } catch (e) {
+      alert.show(e.message);
+    }
   };
 
   const onAnswerFlip = (questionId) => (answerId, type) => {
@@ -95,9 +99,30 @@ export default function QuizEditor({ token }) {
     setRefresh(!refresh);
   };
 
-  const onQuestionAdd = () => {
+  const onQuestionAdd = async () => {
     let newQuiz = { ...quiz };
-    newQuiz.questions.push({ question: "", answers: [] });
+    let newQuestion = {
+      question: "New question",
+      answers: [
+        {
+          answer: "Dummy answer",
+          is_correct: false,
+          points: 0,
+        },
+      ],
+    };
+
+    if (id !== undefined) {
+      try {
+        let questionId = await postQuestion(token, parseInt(id), newQuestion);
+        newQuestion.question_id = questionId;
+      } catch (e) {
+        alert.show(e.message);
+        return;
+      }
+    }
+
+    newQuiz.questions.push(newQuestion);
     setQuiz(newQuiz);
     setRefresh(!refresh);
   };
