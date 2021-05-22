@@ -6,7 +6,10 @@ import SubmissionPreview from "./SubmissionPreview";
 
 const useStyles = makeStyles((theme) => ({
   padded: {
-    padding: theme.spacing(0),
+    paddingRight: theme.spacing(4),
+  },
+  elementPadded: {
+    padding: theme.spacing(2),
     height: "100%",
   },
 }));
@@ -17,8 +20,8 @@ export default function SubmissionList({ submissions }) {
   const generateGridItems = () => {
     if (submissions.length === 0) {
       return (
-        <Grid item xs={3}>
-          <Paper elevation={2} className={classes.padded}>
+        <Grid item xs={12}>
+          <Paper elevation={2} className={classes.elementPadded}>
             <Typography>No submissions</Typography>
           </Paper>
         </Grid>
