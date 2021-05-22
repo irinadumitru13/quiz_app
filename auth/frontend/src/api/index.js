@@ -176,6 +176,9 @@ export async function postQuestion(token, quizId, question) {
 
     if (response.status !== 200) {
       throw new Error("failed to create quiz");
+    } else {
+      const data = response.data;
+      return data.response.question_id;
     }
   } catch (e) {
     throw new Error("failed to create quiz");
