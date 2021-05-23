@@ -4,9 +4,11 @@
 DOCKERFILE=Dockerfile
 
 # Iterate through all services in the repository's root to build them
-for app in $(find . -mindepth 1 -maxdepth 1 -type d -printf '%f\n'); do
+for app in $(find . -mindepth 1 -maxdepth 1 -type d); do
 	if [ -f $app/$DOCKERFILE ]; then
 		cd $app
+
+		app=${app#./}
 
 		docker build -t registry.gitlab.com/idp-2021/quiz-app/$app .
 		docker push registry.gitlab.com/idp-2021/quiz-app/$app:latest
