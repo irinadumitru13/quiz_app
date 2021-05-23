@@ -4,6 +4,10 @@ build_image:
     GIT_SUBMODULE_STRATEGY: recursive
   services:
   - docker:dind
+  pre_clone_script:
+    - git config --global credential.helper store
+    - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}" > ~/.git-credentials
+    - git config --global url."https://${CI_SERVER_HOST}".insteadOf "ssh://git@${CI_SERVER_HOST}"
   script:
     - docker login registry.gitlab.com -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     - docker build -t registry.gitlab.com/idp-2021/quiz-app/auth/gateway ./auth/gateway/
