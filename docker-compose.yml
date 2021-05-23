@@ -3,19 +3,21 @@ version: "3.8"
 services:
   quiz-service:
     build: quiz-service
-    restart: always
+    image: registry.gitlab.com/idp-2021/quiz-app/quiz-service
     environment:
       IO_SERVICE_API_ROUTE: io-quiz-service/api
       NODE_ENV: development
     ports:
       - 3000:80
+    depends_on:
+      - io-quiz-service
     networks:
       - quiz
       - gateway-internal
 
   io-quiz-service:
     build: io-quiz-service
-    restart: always
+    image: registry.gitlab.com/idp-2021/quiz-app/io-quiz-service
     environment:
       PGUSER: admin
       PGPASSWORD: admin
@@ -23,13 +25,14 @@ services:
       PGPORT: 5432
       PGDATABASE: quiz-app
       NODE_ENV: development
+    depends_on:
+      - quiz-db
     networks:
       - quiz
       - quiz-database
 
   quiz-db:
     image: postgres:12
-    restart: always
     environment:
       POSTGRES_DB: quiz-app
       POSTGRES_USER: admin
@@ -43,7 +46,9 @@ services:
 
   adminer:
     image: adminer
-    restart: always
+    depends_on:
+      - quiz-db
+      - user-db
     networks:
       - quiz-database-admin
       - user-database-admin
@@ -51,13 +56,12 @@ services:
 
   session-manager-db:
     image: redis
-    restart: always
     networks:
       - session-manager-internal
 
   session-manager:
     build: session-manager
-    restart: always
+    image: registry.gitlab.com/idp-2021/quiz-app/session-manager
     environment:
       PORT: 8000
       REDIS_DNS: session-manager-db
@@ -70,7 +74,6 @@ services:
 
   user-db:
     image: postgres:alpine
-    restart: always
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
@@ -83,7 +86,7 @@ services:
 
   io-login-manager:
     build: io-login-manager
-    restart: always
+    image: registry.gitlab.com/idp-2021/quiz-app/io-login-manager
     environment:
       PORT: 8001
       SQL_USER: admin
@@ -98,7 +101,7 @@ services:
 
   login-manager:
     build: login-manager
-    restart: always
+    image: registry.gitlab.com/idp-2021/quiz-app/login-manager
     environment:
       PORT: 8002
       SESSION_MANAGER: http://session-manager:8000
@@ -112,19 +115,24 @@ services:
 
   gateway:
     build: gateway
-    restart: always
+    image: registry.gitlab.com/idp-2021/quiz-app/gateway
     environment:
       PORT: 8004
       CONFIG: configuration.json
       SESSION_VALIDATION_URL: http://session-manager:8000/validate
     ports:
       - 8004:8004
+    depends_on:
+      - login-manager
+      - session-manager
+      - quiz-service
+      - gateway-influx
     networks:
       - gateway-internal
 
   gateway-influx:
     build: influx
-    restart: always
+    image: registry.gitlab.com/idp-2021/quiz-app/influx
     environment:
       INFLUXDB_HTTP_ENABLED: "true"
       INFLUXDB_HTTP_FLUX_ENABLED: "true"
@@ -134,16 +142,23 @@ services:
 
   grafana:
     build: grafana
-    restart: always
+    image: registry.gitlab.com/idp-2021/quiz-app/grafana
+    depends_on:
+      - gateway-influx
     networks:
       - grafana-internal
       - frontend-internal
 
   frontend:
     build: frontend
-    restart: always
+    image: registry.gitlab.com/idp-2021/quiz-app/frontend
     ports:
       - 80:80
+    depends_on:
+      - adminer
+      - grafana
+      - portainer
+      - gateway
     networks:
       - frontend-internal
 
