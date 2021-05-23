@@ -3,7 +3,7 @@ build_image:
   services:
   - docker:dind
   script:
-    - docker login registry.gitlab.com
+    - docker login registry.gitlab.com -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     - docker build -t registry.gitlab.com/idp-2021/quiz-app/auth/gateway .
     - docker push registry.gitlab.com/idp-2021/quiz-app/auth/gateway:latest
   only:
