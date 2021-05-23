@@ -5,9 +5,9 @@ build_image:
   services:
   - docker:dind
   before_script:
-    - git config --global credential.helper store
-    - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}" > ~/.git-credentials
-    - git config --global url."https://${CI_SERVER_HOST}".insteadOf "ssh://git@${CI_SERVER_HOST}"
+    - git config --global http.sslVerify "false"
+    - git submodule init
+    - git submodule update --recursive --remote
   script:
     - docker login registry.gitlab.com -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     - docker build -t registry.gitlab.com/idp-2021/quiz-app/auth/gateway ./auth/gateway/
