@@ -1,7 +1,7 @@
 build_image:
   image: docker:git
   variables:
-    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_SUBMODULES: init
   services:
   - docker:dind
   script:
