@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   quiz-service:
-    build: QuizMicroservice
+    build: quiz-service
     restart: always
     environment:
       IO_SERVICE_API_ROUTE: io-quiz-service/api
@@ -14,7 +14,7 @@ services:
       - gateway-internal
 
   io-quiz-service:
-    build: IOQuizMicroservice
+    build: io-quiz-service
     restart: always
     environment:
       PGUSER: admin
@@ -35,7 +35,7 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     volumes:
-      - ./Database/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./Database/quiz-init.sql:/docker-entrypoint-initdb.d/init-db.sql
       - quiz-db-volume:/var/lib/postgresql/data
     networks:
       - quiz-database
@@ -56,7 +56,7 @@ services:
       - session-manager-internal
 
   session-manager:
-    build: auth/session_manager
+    build: session-manager
     restart: always
     environment:
       PORT: 8000
@@ -76,13 +76,13 @@ services:
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=quiz-app
     volumes:
-      - ./auth/io/db_init/users_init.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./Database/users-init.sql:/docker-entrypoint-initdb.d/1-schema.sql
     networks:
       - io-login-manager-internal
       - user-database-admin
 
   io-login-manager:
-    build: auth/io
+    build: io-login-manager
     restart: always
     environment:
       PORT: 8001
@@ -97,7 +97,7 @@ services:
       - login-manager-internal
 
   login-manager:
-    build: auth/login_manager
+    build: login-manager
     restart: always
     environment:
       PORT: 8002
@@ -111,21 +111,19 @@ services:
       - login-manager-internal
 
   gateway:
-    build: auth/gateway
+    build: gateway
     restart: always
     environment:
       PORT: 8004
       CONFIG: configuration.json
       SESSION_VALIDATION_URL: http://session-manager:8000/validate
-    volumes:
-      - ./auth/gateway/configuration.json:/dist/configuration.json
     ports:
       - 8004:8004
     networks:
       - gateway-internal
 
   gateway-influx:
-    build: auth/influx
+    build: influx
     restart: always
     environment:
       INFLUXDB_HTTP_ENABLED: "true"
@@ -135,21 +133,17 @@ services:
       - grafana-internal
 
   grafana:
-    build: auth/grafana
+    build: grafana
     restart: always
-    volumes:
-      - ./auth/grafana/grafana.ini:/etc/grafana/grafana.ini
     networks:
       - grafana-internal
       - frontend-internal
 
   frontend:
-    build: auth/frontend
+    build: frontend
     restart: always
     ports:
       - 80:80
-    volumes:
-      - ./auth/frontend/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - frontend-internal
 

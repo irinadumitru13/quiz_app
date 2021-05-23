@@ -3,13 +3,10 @@ build_image:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   services:
-  - docker:dind
-  before_script:
-    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
-    - git submodule sync && git submodule update --init
+    - docker:dind
   script:
     - docker login registry.gitlab.com -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
-    - docker build -t registry.gitlab.com/idp-2021/quiz-app/auth/gateway ./auth/gateway/
-    - docker push registry.gitlab.com/idp-2021/quiz-app/auth/gateway:latest
+    - docker build -t registry.gitlab.com/idp-2021/quiz-app/gateway ./gateway/
+    - docker push registry.gitlab.com/idp-2021/quiz-app/gateway:latest
   only:
     - master
