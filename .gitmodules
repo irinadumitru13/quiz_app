@@ -1,3 +1,3 @@
 [submodule "auth/gateway/krakend"]
 	path = auth/gateway/krakend
-	url = git@gitlab.com:idp-2021/quiz-app.git
+	url =  ../odin-krakend.git
