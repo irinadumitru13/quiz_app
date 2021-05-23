@@ -3,6 +3,7 @@ version: "3.8"
 services:
   quiz-service:
     build: quiz-service
+    restart: always
     image: registry.gitlab.com/idp-2021/quiz-app/quiz-service
     environment:
       IO_SERVICE_API_ROUTE: io-quiz-service/api
@@ -25,6 +26,7 @@ services:
 
   io-quiz-service:
     build: io-quiz-service
+    restart: always
     image: registry.gitlab.com/idp-2021/quiz-app/io-quiz-service
     environment:
       PGUSER: admin
@@ -50,6 +52,7 @@ services:
         order: stop-first
 
   quiz-db:
+    restart: always
     image: postgres:12
     environment:
       POSTGRES_DB: quiz-app
@@ -71,6 +74,7 @@ services:
         order: stop-first
 
   adminer:
+    restart: always
     image: adminer
     depends_on:
       - quiz-db
@@ -89,6 +93,7 @@ services:
         order: stop-first
 
   session-manager-db:
+    restart: always
     image: redis
     networks:
       - session-manager-internal
@@ -103,6 +108,7 @@ services:
 
   session-manager:
     build: session-manager
+    restart: always
     image: registry.gitlab.com/idp-2021/quiz-app/session-manager
     environment:
       PORT: 8000
@@ -125,6 +131,7 @@ services:
         order: stop-first
 
   user-db:
+    restart: always
     image: postgres:alpine
     environment:
       - POSTGRES_USER=admin
@@ -147,6 +154,7 @@ services:
 
   io-login-manager:
     build: io-login-manager
+    restart: always
     image: registry.gitlab.com/idp-2021/quiz-app/io-login-manager
     environment:
       PORT: 8001
@@ -172,6 +180,7 @@ services:
 
   login-manager:
     build: login-manager
+    restart: always
     image: registry.gitlab.com/idp-2021/quiz-app/login-manager
     environment:
       PORT: 8002
@@ -196,6 +205,7 @@ services:
 
   gateway:
     build: gateway
+    restart: always
     image: registry.gitlab.com/idp-2021/quiz-app/gateway
     environment:
       PORT: 8004
@@ -223,6 +233,7 @@ services:
 
   gateway-influx:
     build: influx
+    restart: always
     image: registry.gitlab.com/idp-2021/quiz-app/influx
     environment:
       INFLUXDB_HTTP_ENABLED: "true"
@@ -243,6 +254,7 @@ services:
 
   grafana:
     build: grafana
+    restart: always
     image: registry.gitlab.com/idp-2021/quiz-app/grafana
     depends_on:
       - gateway-influx
@@ -260,6 +272,7 @@ services:
 
   frontend:
     build: frontend
+    restart: always
     image: registry.gitlab.com/idp-2021/quiz-app/frontend
     ports:
       - 80:80
@@ -282,6 +295,7 @@ services:
         order: stop-first
 
   portainer:
+    restart: always
     image: portainer/portainer
     command: -H unix:///var/run/docker.sock
     restart: always
