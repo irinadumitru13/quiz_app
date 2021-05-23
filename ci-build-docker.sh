@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Script for building docker images with gitlab CI
 
 DOCKERFILE=Dockerfile

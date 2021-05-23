@@ -6,6 +6,6 @@ build_image:
     - docker:dind
   script:
     - docker login registry.gitlab.com -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
-    - ./ci-build-docker.sh
+    - sh ci-build-docker.sh
   only:
     - master
