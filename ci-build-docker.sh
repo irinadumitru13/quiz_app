@@ -4,7 +4,7 @@
 DOCKERFILE=Dockerfile
 
 # Iterate through all services in the repository's root to build them
-for app in $(find . -mindepth 1 -maxdepth 1 -type d); do
+for app in $(find . -mindepth 1 -maxdepth 1 -type d -printf '%f\n'); do
 	if [ -f $app/$DOCKERFILE ]; then
 		cd $app
 
