@@ -7,13 +7,21 @@ services:
     environment:
       IO_SERVICE_API_ROUTE: io-quiz-service/api
       NODE_ENV: development
-    ports:
-      - 3000:80
     depends_on:
       - io-quiz-service
     networks:
       - quiz
       - gateway-internal
+    deploy:
+      replicas: 3
+      placement:
+        max_replicas_per_node: 2
+      update_config:
+        parallelism: 2
+        order: start-first
+      rollback_config:
+        parallelism: 2
+        order: stop-first
 
   io-quiz-service:
     build: io-quiz-service
@@ -30,6 +38,16 @@ services:
     networks:
       - quiz
       - quiz-database
+    deploy:
+      replicas: 3
+      placement:
+        max_replicas_per_node: 2
+      update_config:
+        parallelism: 2
+        order: start-first
+      rollback_config:
+        parallelism: 2
+        order: stop-first
 
   quiz-db:
     image: postgres:12
@@ -43,6 +61,14 @@ services:
     networks:
       - quiz-database
       - quiz-database-admin
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        order: start-first
+      rollback_config:
+        order: stop-first
 
   adminer:
     image: adminer
@@ -53,11 +79,27 @@ services:
       - quiz-database-admin
       - user-database-admin
       - frontend-internal
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        order: start-first
+      rollback_config:
+        order: stop-first
 
   session-manager-db:
     image: redis
     networks:
       - session-manager-internal
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        order: start-first
+      rollback_config:
+        order: stop-first
 
   session-manager:
     build: session-manager
@@ -71,6 +113,16 @@ services:
       - gateway-internal
       - session-manager-internal
       - login-manager-internal
+    deploy:
+      replicas: 3
+      placement:
+        max_replicas_per_node: 2
+      update_config:
+        parallelism: 2
+        order: start-first
+      rollback_config:
+        parallelism: 2
+        order: stop-first
 
   user-db:
     image: postgres:alpine
@@ -80,9 +132,18 @@ services:
       - POSTGRES_DB=quiz-app
     volumes:
       - ./Database/users-init.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - user-db-volume:/var/lib/postgresql/data
     networks:
       - io-login-manager-internal
       - user-database-admin
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        order: start-first
+      rollback_config:
+        order: stop-first
 
   io-login-manager:
     build: io-login-manager
@@ -98,6 +159,16 @@ services:
     networks:
       - io-login-manager-internal
       - login-manager-internal
+    deploy:
+      replicas: 3
+      placement:
+        max_replicas_per_node: 2
+      update_config:
+        parallelism: 2
+        order: start-first
+      rollback_config:
+        parallelism: 2
+        order: stop-first
 
   login-manager:
     build: login-manager
@@ -112,6 +183,16 @@ services:
     networks:
       - gateway-internal
       - login-manager-internal
+    deploy:
+      replicas: 3
+      placement:
+        max_replicas_per_node: 2
+      update_config:
+        parallelism: 2
+        order: start-first
+      rollback_config:
+        parallelism: 2
+        order: stop-first
 
   gateway:
     build: gateway
@@ -129,6 +210,16 @@ services:
       - gateway-influx
     networks:
       - gateway-internal
+    deploy:
+      replicas: 5
+      placement:
+        max_replicas_per_node: 3
+      update_config:
+        parallelism: 3
+        order: start-first
+      rollback_config:
+        parallelism: 3
+        order: stop-first
 
   gateway-influx:
     build: influx
@@ -136,9 +227,19 @@ services:
     environment:
       INFLUXDB_HTTP_ENABLED: "true"
       INFLUXDB_HTTP_FLUX_ENABLED: "true"
+    volumes:
+      - influx-db-volume:/var/lib/influxdb
     networks:
       - gateway-internal
       - grafana-internal
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        order: start-first
+      rollback_config:
+        order: stop-first
 
   grafana:
     build: grafana
@@ -148,6 +249,14 @@ services:
     networks:
       - grafana-internal
       - frontend-internal
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        order: start-first
+      rollback_config:
+        order: stop-first
 
   frontend:
     build: frontend
@@ -161,6 +270,16 @@ services:
       - gateway
     networks:
       - frontend-internal
+    deploy:
+      replicas: 5
+      placement:
+        max_replicas_per_node: 3
+      update_config:
+        parallelism: 3
+        order: start-first
+      rollback_config:
+        parallelism: 3
+        order: stop-first
 
   portainer:
     image: portainer/portainer
@@ -172,9 +291,19 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - frontend-internal
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        order: start-first
+      rollback_config:
+        order: stop-first
 
 volumes:
   quiz-db-volume:
+  user-db-volume:
+  influx-db-volume:
 
 networks:
   quiz:
