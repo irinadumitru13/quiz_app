@@ -34,3 +34,7 @@ permission levels:
 
 The permissions are handled in the `middlewares/permissions.go` middleware
 implementation.
+
+## Metrics
+
+The gateway exports metrics to `influx` and can be examined using `grafana`.
